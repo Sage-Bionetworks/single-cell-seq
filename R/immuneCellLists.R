@@ -6,15 +6,16 @@
 require(tidyverse)
 
 #' getGeneList grabs the gene list from teh synapse table
+#' @export 
 getGeneList <- function(method='cibersort'){
   geneListTable <- 'syn12211688'
   require(synapser)
   synapser::synLogin()
   
-  tab <- synTableQuery(paste('select * from',geneListTable))$asDataFrame()%>%select(Gene=Hugo,Cell=cell_type,Method=Method)
+  tab <- synTableQuery(paste('select * from',geneListTable))$asDataFrame()%>%select(Gene=`Gene Name`,Cell=`Cell Type`,Source)
   
-  if(method%in%(unique(tab$Method)))
-    tab <- subset(tab,Method==method)
+  if(method%in%(unique(tab$Source)))
+    tab <- subset(tab,Source==method)
   
   return(tab)
   
