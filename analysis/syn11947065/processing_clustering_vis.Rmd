@@ -3,6 +3,8 @@ title: "scRNA-Seq Annotation"
 author: "Sara Gosline"
 date: "May 29, 2018"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 
@@ -12,16 +14,25 @@ The goal of this document is to demonstrate the basic steps/tools available to p
 
 ###Properly formatted data
 ```{r,echo=FALSE} 
-library(tidyverse)
+library(tidyverse,quietly=TRUE)
 #first we log into synapse
-library(synapser)
+library(synapser,quietly=TRUE)
 synapser::synLogin()
 ```
 
-All data should be in a matrix form where the rows represent genes and the columns represent samples. Please see the [scRNA-Seq Instructions]() for more details. 
+All data should be in a matrix form where the rows represent genes and the columns represent samples. Please see the [scRNA-Seq Instructions](https://www.synapse.org/#!Synapse:syn11857287/wiki/518624) for more details. 
 
 ```{r}
-samp.tab<-read.table(synapser::synGet('syn12045100')$path,header=T)%>%select(-c(gene_id,gene_type))%>%rename(Gene=`gene_name`)
+##here we collect project specific data
+
+#synapse file
+syn_file<-'syn12045100'
+
+analysis_dir<-"syn12118521"
+
+analysis_file=paste(syn_file,'analysis',sep='_')
+
+samp.tab<-read.table(synapser::synGet(syn_file)$path,header=T)%>%select(-c(gene_id,gene_type))%>%rename(Gene=`gene_name`)
 
 samp.tab[1:10,1:10]
 
@@ -43,11 +54,17 @@ cell.annotations<-data.frame(
 head(cell.annotations)
 ```
 
+Now that the data are processed we can begin to cluster and annotate the cells based on gene expression levels.
+
 ###Grouping cells via clustering
+The first step of analysis is to group the cells using clustering. Here we implement two approaches but can add more. 
 
 #### Plot cells in two dimensions
 
 There are multiple ways to cluster the cells, with many more methods in development. 
+
+###### Principle Component Analysis
+PCA is the simplest/fastest way, and can be done via this call.
 
 ```{r,echo=TRUE}
 library(singleCellSeq)
@@ -62,21 +79,30 @@ ggplot(res.p)+geom_point(aes(x=PC1,y=PC2))
 ```
 
 This plots the data in one way. We can also derive clusters using  T-SNE.
+
+###### T-SNE
+This takes a bit longer, and more memory.
 ```{r}
 #res.t <- dataMatrixToCluster.tsne(samp.mat)
 
 ```
 
+Now that we have two sets of cell coordinates we can assign to clusters.
+
 #### Assign cells to cluster
 With these clusters we then need to group assign cells into groups. 
 
 ```{r,echo=TRUE}
-clust.res<-dbScanPrep(res.p)
+clust.pres<-dbScanPrep(res.p)
 ```
 
 ```{r}
 #goal is to do this for t-sne as well
+#clust.tres<-dbScanPrep(res.t)
+
 ```
+
+Now we have two sets of clusters. 
 
 ### single Cell Enrichment
 We have also collated a set of gene lists that are known to be expressed in single cell populations.
@@ -104,5 +130,15 @@ Now that we have the GSEA scores for the immune sets we can plot those values an
 ```{r echo=FALSE}
 require(pheatmap)
 pheatmap(t(g.res),clustering_distance_rows='correlation',clustering_distance_cols='correlation',clustering_method='ward.D2',annotation_row=cell.annotations,labels_row='')
+
+```
+
+Now we can save to Synapse. 
+```{r echo=FALSE}
+ggsave(paste(analysis_file,'.png',sep=''))
+
+library(knit2synapse)
+
+kr<-knit2synapse::createAndKnitToFileEntity(file='processing_clustering_vis.Rmd',parentId=analysis_dir,fileName=analysis_file,executed=paste("https://raw.githubusercontent.com/Sage-Bionetworks/single-cell-seq/master/analysis/",syn_file,"/processing_clustering_vis.Rmd",sep=''),used=syn_file,overwrite=TRUE)
 
 ```
