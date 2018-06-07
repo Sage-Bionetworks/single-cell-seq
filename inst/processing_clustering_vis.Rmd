@@ -48,14 +48,14 @@ There are multiple ways to cluster the cells, with many more methods in developm
 ###### Principle Component Analysis
 PCA is the simplest/fastest way, and can be done via this call.
 
-```{r,echo=TRUE}
+```{r PCA}
 library(singleCellSeq)
 #use example function
 res.p<-dataMatrixToCluster.pca(samp.mat)
 head(res.p)
 ```
 Hey, we have a data table with two components for each sample.
-```{r}
+```{r Plot PCA}
 library(ggplot2)
 ggplot(res.p)+geom_point(aes(x=PC1,y=PC2))
 ```
@@ -64,8 +64,9 @@ This plots the data in one way. We can also derive clusters using  T-SNE.
 
 ###### T-SNE
 This takes a bit longer, and more memory.
-```{r}
-#res.t <- dataMatrixToCluster.tsne(samp.mat)
+```{r T-SNE}
+#res.t <- dataMatrixToCluster.tsne(t(samp.mat))
+#ggplot(data.frame(res.t))+geom_point(aes(x=Dim1,y=Dim2))
 
 ```
 
@@ -74,11 +75,11 @@ Now that we have two sets of cell coordinates we can assign to clusters.
 #### Assign cells to cluster
 With these clusters we then need to group assign cells into groups. 
 
-```{r,echo=TRUE}
+```{r Cluster PCA}
 clust.pres<-dbScanPrep(res.p)
 ```
 
-```{r}
+```{r Cluster T-SNE}
 #goal is to do this for t-sne as well
 #clust.tres<-dbScanPrep(res.t)
 
@@ -89,15 +90,14 @@ Now we have two sets of clusters.
 ### single Cell Enrichment
 We have also collated a set of gene lists that are known to be expressed in single cell populations.
 
-```{r}
+```{r Get Genes}
 gene.annotations <- getGeneList('mcpcounter')
 head(gene.annotations)
 ```
 
 Then we apply ssGSEA to these
-```{r echo=TRUE}
+```{r GSVA}
 require(GSVA)
-
 g.list<-lapply(gene.annotations%>%split(.$Cell),function(x) x$Gene)
 
 
@@ -107,7 +107,7 @@ g.res[1:10,1:10]
 
 Now that we have the GSEA scores for the immune sets we can plot those values and see how the cells cluster. 
 
-```{r echo=FALSE}
+```{r Plot as Heatmap}
 require(pheatmap)
 pheatmap(t(g.res),clustering_distance_rows='correlation',clustering_distance_cols='correlation',clustering_method='ward.D2',annotation_row=cell.annotations,labels_row='')
 

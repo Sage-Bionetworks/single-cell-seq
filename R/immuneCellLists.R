@@ -12,7 +12,7 @@ getGeneList <- function(method='cibersort'){
   require(synapser)
   synapser::synLogin()
   
-  tab <- synTableQuery(paste('select * from',geneListTable))$asDataFrame()%>%select(Gene=`Gene Name`,Cell=`Cell Type`,Source)
+  tab <- synTableQuery(paste('select * from',geneListTable))$asDataFrame()%>%dplyr::select(Gene=`Gene Name`,Cell=`Cell Type`,Source)
   
   if(method%in%(unique(tab$Source)))
     tab <- subset(tab,Source==method)
@@ -31,7 +31,7 @@ plotGeneListByCluster <-function(gene.annotations,samples,cell.annotations){
   #hope this works
   rownames(red.tab)<-red.tab$Gene
   
-  red.tab<-select(red.tab,-Gene)
+  red.tab<-dplyr::select(red.tab,-Gene)
   
   #remove zero variance rows/columns
   zv<-which(apply(red.tab,1,var)==0)
