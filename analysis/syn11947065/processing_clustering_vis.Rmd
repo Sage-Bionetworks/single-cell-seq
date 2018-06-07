@@ -32,12 +32,16 @@ analysis_dir<-"syn12118521"
 
 analysis_file=paste(syn_file,'analysis',sep='_')
 
-samp.tab<-read.table(synapser::synGet(syn_file)$path,header=T)%>%select(-c(gene_id,gene_type))%>%rename(Gene=`gene_name`)
+samp.tab<-read.table(synapser::synGet(syn_file)$path,header=T,as.is=TRUE)%>%dplyr::select(-c(gene_id,gene_type))%>%dplyr::rename(Gene="gene_name") 
+
+require(org.Hs.eg.db)
+all.gn<-unique(unlist(as.list(org.Hs.egSYMBOL)))
+samp.tab <- samp.tab%>%filter(Gene%in%all.gn)
 
 samp.tab[1:10,1:10]
 
 #need to remove the gene column
-samp.mat<-samp.tab%>%select(-Gene)
+samp.mat<-dplyr::select(samp.tab,-Gene)
 rownames(samp.mat) <- make.names(samp.tab$Gene,unique=TRUE)
 
 samp.mat[1:10,1:10]
@@ -83,7 +87,8 @@ This plots the data in one way. We can also derive clusters using  T-SNE.
 ###### T-SNE
 This takes a bit longer, and more memory.
 ```{r}
-#res.t <- dataMatrixToCluster.tsne(samp.mat)
+res.t <- dataMatrixToCluster.tsne(t(samp.mat))
+ggplot(data.frame(res.t))+geom_point(aes(x=Dim1,y=Dim2))
 
 ```
 
@@ -98,7 +103,7 @@ clust.pres<-dbScanPrep(res.p)
 
 ```{r}
 #goal is to do this for t-sne as well
-#clust.tres<-dbScanPrep(res.t)
+clust.tres<-dbScanPrep(res.t)
 
 ```
 
@@ -115,7 +120,7 @@ head(gene.annotations)
 Then we apply ssGSEA to these
 ```{r echo=TRUE}
 require(GSVA)
-gmat<-samp.tab%>%select(-Gene)
+gmat<-samp.tab%>%dplyr::select(-Gene)
 rownames(gmat)<-make.names(samp.tab$Gene,unique=TRUE)
 
 g.list<-lapply(gene.annotations%>%split(.$Cell),function(x) x$Gene)
@@ -135,7 +140,7 @@ pheatmap(t(g.res),clustering_distance_rows='correlation',clustering_distance_col
 
 Now we can save to Synapse. 
 ```{r echo=FALSE}
-ggsave(paste(analysis_file,'.png',sep=''))
+#ggsave(paste(analysis_file,'.png',sep=''))
 
 library(knit2synapse)
 
