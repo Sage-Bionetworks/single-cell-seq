@@ -1,12 +1,14 @@
 ---
 title: "scRNA-Seq Annotation"
 author: "Sara Gosline"
-date: "May 29, 2018"
+date: "June 7, 2018"
 output: html_document
 editor_options: 
   chunk_output_type: console
+params: 
+  samp.mat: NA
+  cell.annotations: NA
 ---
-
 
 ## scRNA-Seq Immune Cell Annotation
 
@@ -16,41 +18,21 @@ The goal of this document is to demonstrate the basic steps/tools available to p
 ```{r,echo=FALSE} 
 library(tidyverse,quietly=TRUE)
 #first we log into synapse
-library(synapser,quietly=TRUE)
-synapser::synLogin()
+require(synapser,quietly=TRUE)
+
+samp.tab <- params$samp.tab
+cell.annotations <- params$cell.annotations
+
 ```
 
-All data should be in a matrix form where the rows represent genes and the columns represent samples. Please see the [scRNA-Seq Instructions](https://www.synapse.org/#!Synapse:syn11857287/wiki/518624) for more details. 
+All data should be in a matrix form where the rows represent genes and the columns represent samples. Please see the [scRNA-Seq Instructions](https://www.synapse.org/#!Synapse:syn11857287/wiki/518624) for more details. These files should be passed in as `samp.mat`.
 
-```{r}
-##here we collect project specific data
-
-#synapse file
-syn_file<-'syn12045100'
-
-analysis_dir<-"syn12118521"
-
-analysis_file=paste(syn_file,'analysis',sep='_')
-
-samp.tab<-read.table(synapser::synGet(syn_file)$path,header=T)%>%select(-c(gene_id,gene_type))%>%rename(Gene=`gene_name`)
-
-samp.tab[1:10,1:10]
-
-#need to remove the gene column
-samp.mat<-samp.tab%>%select(-Gene)
-rownames(samp.mat) <- make.names(samp.tab$Gene,unique=TRUE)
-
+```{r see-sample}
 samp.mat[1:10,1:10]
 ```
 
-We may also have cell-specific annotations. These two are experiment-specific and should be formatted in a way that can be better visualized. For this dataset, we have a collection of primary tumor sample, lymph nodes, bulk and single cell.
-
-```{r, echo=FALSE}
-##pull out sample annotations from the sample names
-cell.annotations<-data.frame(
-  Patient=as.factor(sapply(colnames(samp.tab), function(x) gsub("LN","",unlist(strsplit(x,split='_'))[1]))),
-  IsPooled=as.factor(sapply(colnames(samp.tab),function(x) unlist(strsplit(x,split='_'))[2]=="Pooled")),
-  IsTumor=as.factor(sapply(colnames(samp.tab),function(x) length(grep('LN',x))==0)))[-1,]
+We may also have cell-specific annotations, These two are experiment-specific and should be formatted in a way that can be better visualized. These are passed in as `cell.annotations`:
+```{r see-annotations}
 head(cell.annotations)
 ```
 
@@ -115,13 +97,11 @@ head(gene.annotations)
 Then we apply ssGSEA to these
 ```{r echo=TRUE}
 require(GSVA)
-gmat<-samp.tab%>%select(-Gene)
-rownames(gmat)<-make.names(samp.tab$Gene,unique=TRUE)
 
 g.list<-lapply(gene.annotations%>%split(.$Cell),function(x) x$Gene)
 
 
-g.res<-gsva(as.matrix(gmat),g.list,method='ssgsea',rnaseq=TRUE,verbose=FALSE)
+g.res<-gsva(as.matrix(samp.mat),g.list,method='ssgsea',rnaseq=TRUE,verbose=FALSE)
 g.res[1:10,1:10]
 ```
 
@@ -130,15 +110,5 @@ Now that we have the GSEA scores for the immune sets we can plot those values an
 ```{r echo=FALSE}
 require(pheatmap)
 pheatmap(t(g.res),clustering_distance_rows='correlation',clustering_distance_cols='correlation',clustering_method='ward.D2',annotation_row=cell.annotations,labels_row='')
-
-```
-
-Now we can save to Synapse. 
-```{r echo=FALSE}
-ggsave(paste(analysis_file,'.png',sep=''))
-
-library(knit2synapse)
-
-kr<-knit2synapse::createAndKnitToFileEntity(file='processing_clustering_vis.Rmd',parentId=analysis_dir,fileName=analysis_file,executed=paste("https://raw.githubusercontent.com/Sage-Bionetworks/single-cell-seq/master/analysis/",syn_file,"/processing_clustering_vis.Rmd",sep=''),used=syn_file,overwrite=TRUE)
 
 ```
