@@ -65,8 +65,8 @@ This plots the data in one way. We can also derive clusters using  T-SNE.
 ###### T-SNE
 This takes a bit longer, and more memory.
 ```{r T-SNE}
-res.t <- dataMatrixToCluster.tsne(t(samp.mat))
-ggplot(data.frame(res.t))+geom_point(aes(x=Dim1,y=Dim2))
+#res.t <- dataMatrixToCluster.tsne(t(samp.mat))
+#ggplot(data.frame(res.t))+geom_point(aes(x=Dim1,y=Dim2))
 
 ```
 
@@ -81,7 +81,7 @@ clust.pres<-dbScanPrep(res.p)
 
 ```{r Cluster T-SNE}
 #goal is to do this for t-sne as well
-clust.tres<-dbScanPrep(res.t)
+#clust.tres<-dbScanPrep(res.t)
 
 ```
 
