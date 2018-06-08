@@ -22,9 +22,13 @@ samp.tab<-read.table(synapser::synGet(syn_file)$path,header=T,as.is=TRUE)%>%dply
 require(org.Hs.eg.db)
 all.gn<-unique(unlist(as.list(org.Hs.egSYMBOL)))
 samp.tab <- samp.tab%>%filter(Gene%in%all.gn)
+allz<-which(apply(samp.tab%>%dplyr::select(-Gene),1,function(x) all(x==0)))
+if(length(allz)>0)
+  samp.tab<-samp.tab[-allz,]
 
 #need to remove the gene column
 samp.mat<-samp.tab%>%dplyr::select(-Gene)
+
 rownames(samp.mat) <- make.names(samp.tab$Gene,unique=TRUE)
 
 #define any cell specific annotations

@@ -10,7 +10,7 @@ dataMatrixToCluster.tsne <-function(df, cols.to.exclude=c()){
   require(tsne) 
   if(length(cols.to.exclude)>0)
     df<-df[,-cols.to.exclude]
-  res<-tsne(t(df),max_iter=100,perplexity = 10, min_cost = 0.00000001)
+  res<-tsne(t(df),max_iter=100,perplexity = 10, min_cost = 0.000001)
   colnames(res)<-c('Dim1','Dim2')
   rownames(res)<-colnames(df)
   return(res)
