@@ -51,7 +51,7 @@ PCA is the simplest/fastest way, and can be done via this call.
 ```{r PCA}
 library(singleCellSeq)
 #use example function
-res.p<-dataMatrixToCluster.pca(samp.mat)
+res.p<-singleCellSeq::dataMatrixToCluster.pca(samp.mat)
 head(res.p)
 ```
 Hey, we have a data table with two components for each sample.
@@ -65,8 +65,8 @@ This plots the data in one way. We can also derive clusters using  T-SNE.
 ###### T-SNE
 This takes a bit longer, and more memory.
 ```{r T-SNE}
-#res.t <- dataMatrixToCluster.tsne(t(samp.mat))
-#ggplot(data.frame(res.t))+geom_point(aes(x=Dim1,y=Dim2))
+res.t <- singleCellSeq::dataMatrixToCluster.tsne(t(samp.mat))
+ggplot(data.frame(res.t))+geom_point(aes(x=Dim1,y=Dim2))
 
 ```
 
@@ -76,12 +76,12 @@ Now that we have two sets of cell coordinates we can assign to clusters.
 With these clusters we then need to group assign cells into groups. 
 
 ```{r Cluster PCA}
-clust.pres<-dbScanPrep(res.p)
+clust.pres<-singleCellSeq::dbScanPrep(res.p)
 ```
 
 ```{r Cluster T-SNE}
 #goal is to do this for t-sne as well
-#clust.tres<-dbScanPrep(res.t)
+clust.tres<-singleCellSeq::dbScanPrep(res.t)
 
 ```
 
@@ -91,7 +91,7 @@ Now we have two sets of clusters.
 We have also collated a set of gene lists that are known to be expressed in single cell populations.
 
 ```{r Get Genes}
-gene.annotations <- getGeneList('mcpcounter')
+gene.annotations <- singleCellSeq::getGeneList('mcpcounter')
 head(gene.annotations)
 ```
 

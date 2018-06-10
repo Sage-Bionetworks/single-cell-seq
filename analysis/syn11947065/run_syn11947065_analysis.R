@@ -29,6 +29,7 @@ if(length(allz)>0)
 #need to remove the gene column
 samp.mat<-samp.tab%>%dplyr::select(-Gene)
 
+print(dim(samp.mat))
 rownames(samp.mat) <- make.names(samp.tab$Gene,unique=TRUE)
 
 #define any cell specific annotations
