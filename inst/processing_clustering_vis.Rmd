@@ -65,7 +65,7 @@ This plots the data in one way. We can also derive clusters using  T-SNE.
 ###### T-SNE
 This takes a bit longer, and more memory.
 ```{r T-SNE}
-res.t <- singleCellSeq::dataMatrixToCluster.tsne(t(samp.mat))
+res.t <- singleCellSeq::dataMatrixToCluster.tsne(samp.mat)
 ggplot(data.frame(res.t))+geom_point(aes(x=Dim1,y=Dim2))
 
 ```
