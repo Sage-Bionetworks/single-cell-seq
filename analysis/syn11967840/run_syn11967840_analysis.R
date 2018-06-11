@@ -8,14 +8,13 @@
 #synapse file
 require(synapser)
 require(tidyverse)
-
+require(singleCellSeq)
 synapser::synLogin()
 
 #define variables for RMd
 syn_file<-'syn11967840'
 annotation_file <-'syn11967839'
 analysis_dir<-"syn12494570"
-analysis_file=paste(syn_file,'analysis.html',sep='_')
 
 #define matrix
 samp.tab<-read.table(synapser::synGet(syn_file)$path,header=T,as.is=TRUE,sep='\t')%>%dplyr::select(-c(Gene.ID_1,Gene.ID_2))%>%dplyr::rename(Gene="Gene.Symbol") 
@@ -38,8 +37,12 @@ rownames(at)<-at$Cell
 at<-at%>%dplyr::select(-Cell)
 
 #then knit file
-library(knit2synapse)
+library(rmarkdown)
 
-params=list(samp.mat=samp.mat,cell.annotations=at)
+#params=list(samp.mat=samp.mat,cell.annotations=at)
 rmd<-system.file('processing_clustering_vis.Rmd',package='singleCellSeq')
-kr<-knit2synapse::createAndKnitToFileEntity(file=rmd,parentId=analysis_dir,fileName=analysis_file,executed=paste("https://raw.githubusercontent.com/Sage-Bionetworks/single-cell-seq/master/analysis/",syn_file,"/processing_clustering_vis.Rmd",sep=''),used=syn_file,overwrite=TRUE)
+kf<-rmarkdown::render(rmd,html_document(),params=list(samp.mat=samp.mat,cell.annotations=at))
+
+#
+synapser::synStore(File(kf,parentId=analysis_dir),executed=paste("https://raw.githubusercontent.com/Sage-Bionetworks/single-cell-seq/master/analysis/",syn_file,"/processing_clustering_vis.Rmd",sep=''),used=syn_file)
+

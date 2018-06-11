@@ -8,7 +8,7 @@
 #synapse file
 require(synapser)
 require(tidyverse)
-
+require(singleCellSeq)
 synapser::synLogin()
 
 #define variables for RMd
@@ -39,8 +39,11 @@ cell.annotations<-data.frame(
   IsTumor=as.factor(sapply(colnames(samp.tab),function(x) length(grep('LN',x))==0)))[-1,]
 
 #then knit file
-library(knit2synapse)
 
-params=list(samp.mat=samp.mat,cell.annotations=cell.annotations)
 rmd<-system.file('processing_clustering_vis.Rmd',package='singleCellSeq')
-kr<-knit2synapse::createAndKnitToFileEntity(file=rmd,parentId=analysis_dir,fileName=analysis_file,executed=paste("https://raw.githubusercontent.com/Sage-Bionetworks/single-cell-seq/master/analysis/",syn_file,"/processing_clustering_vis.Rmd",sep=''),used=syn_file,overwrite=TRUE)
+require(rmarkdown)
+#kr<-knit2synapse::createAndKnitToFileEntity(file=rmd,parentId=analysis_dir,fileName=analysis_file,executed=paste("https://raw.githubusercontent.com/Sage-Bionetworks/single-cell-seq/master/analysis/",syn_file,"/processing_clustering_vis.Rmd",sep=''),used=syn_file,overwrite=TRUE)
+kf<-rmarkdown::render(rmd,html_document(),params=list(samp.mat=samp.mat,cell.annotations=cell.annotations))
+
+#
+synapser::synStore(File(kf,parentId=analysis_dir),executed=paste("https://raw.githubusercontent.com/Sage-Bionetworks/single-cell-seq/master/analysis/",syn_file,"/processing_clustering_vis.Rmd",sep=''),used=syn_file)

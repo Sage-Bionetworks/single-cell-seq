@@ -5,7 +5,8 @@ date: "June 7, 2018"
 output: html_document
 editor_options: 
   chunk_output_type: console
-params: 
+
+params:
   samp.mat: NA
   cell.annotations: NA
 ---
@@ -20,7 +21,7 @@ library(tidyverse,quietly=TRUE)
 #first we log into synapse
 require(synapser,quietly=TRUE)
 
-samp.tab <- params$samp.tab
+samp.mat <- params$samp.mat
 cell.annotations <- params$cell.annotations
 
 ```
@@ -54,7 +55,9 @@ library(singleCellSeq)
 res.p<-singleCellSeq::dataMatrixToCluster.pca(samp.mat)
 head(res.p)
 ```
-Hey, we have a data table with two components for each sample.
+
+
+
 ```{r Plot PCA}
 library(ggplot2)
 ggplot(res.p)+geom_point(aes(x=PC1,y=PC2))
