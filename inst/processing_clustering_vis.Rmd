@@ -102,10 +102,12 @@ g.list<-lapply(gene.annotations%>%split(.$Cell),function(x) x$Gene)
 g.res<-gsva(as.matrix(samp.mat),g.list,method='ssgsea',rnaseq=TRUE,verbose=FALSE)
 ```
 
+colnames(g.res)<-rownames(cell.annotations)
+
 Now that we have the GSEA scores for the immune sets we can plot those values and see how the cells cluster. 
 
 ```{r Plot as Heatmap}
 require(pheatmap)
-pheatmap(t(g.res),clustering_distance_rows='correlation',clustering_distance_cols='correlation',clustering_method='ward.D2',annotation_row=cell.annotations,labels_row='')
+pheatmap(t(g.res),clustering_distance_rows='correlation',clustering_distance_cols='correlation',clustering_method='ward.D2',annotation_row=cell.annotations[colnames(g.res),],show_rownames=F)
 
 ```
