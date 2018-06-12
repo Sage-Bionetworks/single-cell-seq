@@ -1,0 +1,113 @@
+---
+title: "scRNA-Seq Annotation"
+author: "Sara Gosline"
+date: "June 7, 2018"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+
+params:
+  samp.mat: NA
+  cell.annotations: NA
+---
+
+## scRNA-Seq Immune Cell Annotation
+
+The goal of this document is to demonstrate the basic steps/tools available to pull scRNA-seq data from [Synapse](http://www.synapse.org/scRNASeq) and use available annotations to visualize the results. 
+
+###Properly formatted data
+```{r,echo=FALSE} 
+library(tidyverse,quietly=TRUE)
+#first we log into synapse
+require(synapser,quietly=TRUE)
+
+samp.mat <- params$samp.mat
+cell.annotations <- params$cell.annotations
+
+```
+
+All data should be in a matrix form where the rows represent genes and the columns represent samples. Please see the [scRNA-Seq Instructions](https://www.synapse.org/#!Synapse:syn11857287/wiki/518624) for more details. These files should be passed in as `samp.mat`.
+
+```{r see-sample}
+samp.mat[1:10,1:10]
+```
+
+We may also have cell-specific annotations, These two are experiment-specific and should be formatted in a way that can be better visualized. These are passed in as `cell.annotations`:
+```{r see-annotations}
+head(cell.annotations)
+```
+
+Now that the data are processed we can begin to cluster and annotate the cells based on gene expression levels.
+
+###Grouping cells via clustering
+The first step of analysis is to group the cells using clustering. Here we implement two approaches but can add more. 
+
+#### Plot cells in two dimensions
+
+There are multiple ways to cluster the cells, with many more methods in development. 
+
+###### Principle Component Analysis
+
+```{r PCA}
+library(singleCellSeq)
+#use example function
+res.p<-singleCellSeq::dataMatrixToCluster.pca(samp.mat)
+#head(res.p)
+
+```
+
+This takes a bit longer, and more memory.
+```{r T-SNE}
+res.t <- singleCellSeq::dataMatrixToCluster.tsne(samp.mat)
+
+```
+
+#### Assign cells to cluster
+With these clusters we then need to group assign cells into groups. 
+
+```{r Cluster PCA}
+clust.pres<-singleCellSeq::dbScanPrep(res.p,5,.05)
+```
+
+```{r Cluster T-SNE}
+#goal is to do this for t-sne as well
+clust.tres<-singleCellSeq::dbScanPrep(res.t,MIN.CLUSTER.SIZE = 5,.5)
+
+```
+
+#### Visualize Clusters
+
+```{r Plot PCA}
+library(ggplot2)
+ggplot(data.frame(res.p,Cluster=as.factor(clust.pres)))+geom_point(aes(x=PC1,y=PC2,color=Cluster))
+ggplot(data.frame(res.t,Cluster=as.factor(clust.tres)))+geom_point(aes(x=Dim1,y=Dim2,color=Cluster))
+
+```
+
+
+### Single Cell Enrichment
+We have also collated a set of gene lists that are known to be expressed in single cell populations.
+
+```{r Get Genes}
+gene.annotations <- singleCellSeq::getGeneList('mcpcounter')
+head(gene.annotations)
+```
+
+Then we apply ssGSEA to these
+```{r GSVA}
+require(GSVA)
+g.list<-lapply(gene.annotations%>%split(.$Cell),function(x) x$Gene)
+
+
+g.res<-gsva(as.matrix(samp.mat),g.list,method='ssgsea',rnaseq=TRUE,verbose=FALSE)
+```
+
+colnames(g.res)<-rownames(cell.annotations)
+
+Now that we have the GSEA scores for the immune sets we can plot those values and see how the cells cluster. 
+
+```{r Plot as Heatmap}
+require(pheatmap)
+pheatmap(t(g.res),clustering_distance_rows='correlation',clustering_distance_cols='correlation',clustering_method='ward.D2',annotation_row=cell.annotations[colnames(g.res),],show_rownames=F)
+
+```
