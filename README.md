@@ -19,7 +19,6 @@ Now you are ready to go!
 Currently we are developing a suite of tools to facilitate immune cell annotation.
 
 ### Tumor Deconvolution Tools
-<<<<<<< HEAD
 https://github.com/CRI-iAtlas/iatlas-tool-cibersort
 https://github.com/CRI-iAtlas/irwg-tool-mitcr
 https://github.com/CRI-iAtlas/iatlas-tool-epic
@@ -46,4 +45,4 @@ This work is ongoing.
 
 ### Alignment/Processing Tools
 This work is also ongoing!
->>>>>>> acd3e3d9b14d3e264d6c418df867c13464d8945d
+
