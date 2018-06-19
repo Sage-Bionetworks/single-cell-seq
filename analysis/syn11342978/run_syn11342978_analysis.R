@@ -12,9 +12,8 @@ require(singleCellSeq)
 synapser::synLogin()
 
 #define variables for RMd
-syn_file<-''
+syn_file<-synapser::synTableQuery('select id from syn11974770')
 analysis_dir<-"syn12508617"
-analysis_file=paste(syn_file,'analysis.html',sep='_')
 
 #define matrix
 samp.tab<-read.table(synapser::synGet(syn_file)$path,header=T,as.is=TRUE)%>%dplyr::select(-c(gene_id,gene_type))%>%dplyr::rename(Gene="gene_name") 
