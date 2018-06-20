@@ -77,7 +77,7 @@ clust.tres<-singleCellSeq::dbScanPrep(res.t,MIN.CLUSTER.SIZE = 5,.5)
 
 #### Visualize Clusters
 
-```{r Plot PCA}
+```{r Plot Clusters}
 library(ggplot2)
 ggplot(data.frame(res.p,Cluster=as.factor(clust.pres)))+geom_point(aes(x=PC1,y=PC2,color=Cluster))
 ggplot(data.frame(res.t,Cluster=as.factor(clust.tres)))+geom_point(aes(x=Dim1,y=Dim2,color=Cluster))
@@ -88,26 +88,20 @@ ggplot(data.frame(res.t,Cluster=as.factor(clust.tres)))+geom_point(aes(x=Dim1,y=
 ### Single Cell Enrichment
 We have also collated a set of gene lists that are known to be expressed in single cell populations.
 
-```{r Get Genes}
-gene.annotations <- singleCellSeq::getGeneList('mcpcounter')
-head(gene.annotations)
+```{r Get Genes,results='asis'}
+gene.lists<-c('mcpcounter','cibersort','LyonsEtAl','Wallet')
+require(pheatmap,quietly=T)
+require(GSVA,quietly=T)
+
+for(gl in gene.lists){
+  gene.annotations <- singleCellSeq::getGeneList(gl)
+  g.list<-lapply(gene.annotations%>%split(.$Cell),function(x) x$Gene)
+  g.res<-gsva(as.matrix(samp.mat),g.list,method='ssgsea',rnaseq=TRUE,verbose=FALSE)
+  colnames(g.res)<-rownames(cell.annotations)
+  cat('\n\n')  
+  cat(paste("#### ssGSEA of",gl))
+  suppressWarnings(pheatmap(t(g.res),clustering_distance_rows='correlation',clustering_distance_cols='correlation',clustering_method='ward.D2',annotation_row=cell.annotations[colnames(g.res),],show_rownames=F))
+  cat('\n\n') 
+}
 ```
-
-Then we apply ssGSEA to these
-```{r GSVA}
-require(GSVA)
-g.list<-lapply(gene.annotations%>%split(.$Cell),function(x) x$Gene)
-
-
-g.res<-gsva(as.matrix(samp.mat),g.list,method='ssgsea',rnaseq=TRUE,verbose=FALSE)
-```
-
-colnames(g.res)<-rownames(cell.annotations)
-
-Now that we have the GSEA scores for the immune sets we can plot those values and see how the cells cluster. 
-
-```{r Plot as Heatmap}
-require(pheatmap)
-pheatmap(t(g.res),clustering_distance_rows='correlation',clustering_distance_cols='correlation',clustering_method='ward.D2',annotation_row=cell.annotations[colnames(g.res),],show_rownames=F)
-
-```
+  

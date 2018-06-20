@@ -9,8 +9,10 @@ require(tidyverse)
 #' @export 
 getGeneList <- function(method='cibersort'){
   geneListTable <- 'syn12211688'
-  require(synapser)
-  synapser::synLogin()
+  require(synapser,quietly=T)
+  if(is.null(PythonEmbedInR::pyGet("syn.username")))
+    synapser::synLogin()
+
   
   tab <- synTableQuery(paste('select * from',geneListTable))$asDataFrame()%>%dplyr::select(Gene=`Gene Name`,Cell=`Cell Type`,Source)
   

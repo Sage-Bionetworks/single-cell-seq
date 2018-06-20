@@ -7,10 +7,10 @@
 #' by t-SNE and return an annotated list of cells
 #' @export
 dataMatrixToCluster.tsne <-function(df, cols.to.exclude=c()){
-  require(Rtsne) 
+  require(Rtsne,quietly=T) 
   if(length(cols.to.exclude)>0)
     df<-df[,-cols.to.exclude]
-  res<-Rtsne(t(df),max_iter=100,perplexity = 10, min_cost = 0.000001)$Y
+  res<-Rtsne(t(df),max_iter=100,perplexity = 20, min_cost = 0.0000001)$Y
   colnames(res)<-c('Dim1','Dim2')
   rownames(res)<-colnames(df)
   return(res)
@@ -35,10 +35,19 @@ cellClustersToSynapse <-function(){
   
 }
 
+#' dataMatrixToCluster.seurat is a function to cluster a data matrix
+#' by seurat and return an annotated list of cells
+#' @param df
+#' @param cols.to.exclude
+#' @export
+dataMatrixtoCluster.seurat<-function(df,cols.to.exclude=c()){
+  require(Seurat,quietly=T)
+}
+
 #' runs dbscan to determine clusters
 #' @export 
 dbScanPrep <-function(data,MIN.CLUSTER.SIZE=2,EPS=0.005){
-  require(dbscan)
+  require(dbscan,quietly=T)
   #code from jeff
  # x <- data[["X"]] 
 #  y <- data[["Y"]] 
