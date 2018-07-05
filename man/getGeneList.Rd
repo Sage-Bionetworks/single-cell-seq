@@ -2,7 +2,7 @@
 % Please edit documentation in R/immuneCellLists.R
 \name{getGeneList}
 \alias{getGeneList}
-\title{getGeneList grabs the gene list from teh synapse table}
+\title{evaluate subsets of gene expression markers}
 \usage{
 getGeneList(method = "cibersort")
 }

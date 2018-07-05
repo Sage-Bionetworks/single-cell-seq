@@ -3,13 +3,12 @@
 #'
 #'
 
-require(tidyverse)
-
 #' getGeneList grabs the gene list from teh synapse table
 #' @export 
 getGeneList <- function(method='cibersort'){
   geneListTable <- 'syn12211688'
   require(synapser,quietly=T)
+  require(dplyr)
   if(is.null(PythonEmbedInR::pyGet("syn.username")))
     synapser::synLogin()
 
@@ -26,7 +25,7 @@ getGeneList <- function(method='cibersort'){
 #'get list of clusters, annotate by 
 plotGeneListByCluster <-function(gene.annotations,samples,cell.annotations){
   require(pheatmap)
-  
+  require(dplyr)
   #reduce table to gene set
   red.tab<-subset(samples,Gene%in%rownames(gene.annotations))
   

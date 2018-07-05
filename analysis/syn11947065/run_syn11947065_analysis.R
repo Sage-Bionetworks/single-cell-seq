@@ -7,7 +7,8 @@
 #
 #synapse file
 require(synapser)
-require(tidyverse)
+require(dplyr)
+require(tidyr)
 require(singleCellSeq)
 synapser::synLogin()
 
@@ -38,12 +39,15 @@ cell.annotations<-data.frame(
   IsPooled=as.factor(sapply(colnames(samp.tab),function(x) unlist(strsplit(x,split='_'))[2]=="Pooled")),
   IsTumor=as.factor(sapply(colnames(samp.tab),function(x) length(grep('LN',x))==0)))[-1,]
 
-#then knit file
-
+#first knit tsne file
 rmd<-system.file('processing_clustering_vis.Rmd',package='singleCellSeq')
-require(rmarkdown)
 #kr<-knit2synapse::createAndKnitToFileEntity(file=rmd,parentId=analysis_dir,fileName=analysis_file,executed=paste("https://raw.githubusercontent.com/Sage-Bionetworks/single-cell-seq/master/analysis/",syn_file,"/processing_clustering_vis.Rmd",sep=''),used=syn_file,overwrite=TRUE)
-kf<-rmarkdown::render(rmd,html_document(),params=list(samp.mat=samp.mat,cell.annotations=cell.annotations))
 
-#
-synapser::synStore(File(kf,parentId=analysis_dir),executed=paste("https://raw.githubusercontent.com/Sage-Bionetworks/single-cell-seq/master/analysis/",syn_file,"/processing_clustering_vis.Rmd",sep=''),used=syn_file)
+kf<-rmarkdown::render(rmd,rmarkdown::html_document(),params=list(samp.mat=samp.mat,gene.list='mcpcounter'))
+
+#synapser::synStore(File(kf,parentId=analysis_dir),executed=paste("https://raw.githubusercontent.com/Sage-Bionetworks/single-cell-seq/master/analysis/",syn_file,"/run_",syn_file,"_analysis.R",sep=''),used=syn_file)
+
+##then try to detach seurat and plo the other file
+
+rmd<-system.file('heatmap_vis.Rmd',package='singleCellSeq')
+

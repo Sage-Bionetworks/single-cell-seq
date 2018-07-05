@@ -1,14 +1,14 @@
 ---
 title: "scRNA-Seq Annotation"
 author: "Sara Gosline"
-date: "June 7, 2018"
+date: "July 3, 2018"
 output: html_document
 editor_options: 
   chunk_output_type: console
 
 params:
   samp.mat: NA
-  cell.annotations: NA
+  gene.list: NA
 ---
 
 ## scRNA-Seq Immune Cell Annotation
@@ -17,12 +17,8 @@ The goal of this document is to demonstrate the basic steps/tools available to p
 
 ###Properly formatted data
 ```{r,echo=FALSE} 
-library(tidyverse,quietly=TRUE)
-#first we log into synapse
-require(synapser,quietly=TRUE)
-
 samp.mat <- params$samp.mat
-cell.annotations <- params$cell.annotations
+gene.list <-params$gene.list
 
 ```
 
@@ -30,11 +26,6 @@ All data should be in a matrix form where the rows represent genes and the colum
 
 ```{r see-sample}
 samp.mat[1:10,1:10]
-```
-
-We may also have cell-specific annotations, These two are experiment-specific and should be formatted in a way that can be better visualized. These are passed in as `cell.annotations`:
-```{r see-annotations}
-head(cell.annotations)
 ```
 
 Now that the data are processed we can begin to cluster and annotate the cells based on gene expression levels.
@@ -48,60 +39,63 @@ There are multiple ways to cluster the cells, with many more methods in developm
 
 ###### Principle Component Analysis
 
-```{r PCA}
-library(singleCellSeq)
+```{r Compare clustering}
 #use example function
-res.p<-singleCellSeq::dataMatrixToCluster.pca(samp.mat)
-#head(res.p)
+res.s <-singleCellSeq::dataMatrixToCluster.seurat(samp.mat)
 
 ```
 
-This takes a bit longer, and more memory.
-```{r T-SNE}
-res.t <- singleCellSeq::dataMatrixToCluster.tsne(samp.mat)
-
-```
 
 #### Assign cells to cluster
 With these clusters we then need to group assign cells into groups. 
 
-```{r Cluster PCA}
-clust.pres<-singleCellSeq::dbScanPrep(res.p,5,.05)
-```
-
-```{r Cluster T-SNE}
-#goal is to do this for t-sne as well
-clust.tres<-singleCellSeq::dbScanPrep(res.t,MIN.CLUSTER.SIZE = 5,.5)
-
+```{r Cluster Cells}
+clust.sres<-Seurat::FindClusters(res.s)
 ```
 
 #### Visualize Clusters
 
-```{r Plot Clusters}
-library(ggplot2)
-ggplot(data.frame(res.p,Cluster=as.factor(clust.pres)))+geom_point(aes(x=PC1,y=PC2,color=Cluster))
-ggplot(data.frame(res.t,Cluster=as.factor(clust.tres)))+geom_point(aes(x=Dim1,y=Dim2,color=Cluster))
+
+With Seurat just makes this much easier!
+```{R Seurat Clusters}
+Seurat::PCAPlot(clust.sres)
+Seurat::TSNEPlot(clust.sres)
+```
+
+Now we can see the clusters and evaluate the gene lists of interest.
+```{r genes}
+genes<-singleCellSeq::getGeneList(gene.list)
+
+by.cell=lapply(as.character(unique(genes$Cell)),function(x) subset(genes,Cell==x)$Gene)
+names(by.cell)<-as.character(unique(genes$Cell))
+
+#now create file paths
+paths <- paste0(names(by.cell), ".png")
+names(paths)<-names(by.cell)
+
+try(dir.create('plots'))
+all.plots<-lapply(names(by.cell),function(gc){
+  gs<-by.cell[[gc]]
+  gs<-gs[which(gs%in%rownames(clust.sres@data))]
+  png(paste0("plots/",paths[[gc]]))
+  FeaturePlot(object = clust.sres, features.plot = gs, cols.use = c("grey", "blue"), reduction.use = "tsne",do.return=TRUE)
+  #ggsave(paths[[gc]],path='plots',dpi=300)
+  dev.off()
+  })
+
+names(all.plots)<-names(by.cell)
+
+
+
+#purrr::pwalk(list(paths, all.plots),ggplot2::ggsave, path = "plots", dpi = 300)
+
+cell_plots <- paste0(list.files("plots", full.names = TRUE))
+names(cell_plots) <- stringr::str_replace_all(cell_plots, 
+                                      c("\\.png" = "", 
+                                        "plots/" = ""))
+
+library(bsselectR)
+bsselect(cell_plots, type = "img",live_search = TRUE, show_tick = TRUE)
 
 ```
 
-
-### Single Cell Enrichment
-We have also collated a set of gene lists that are known to be expressed in single cell populations.
-
-```{r Get Genes,results='asis'}
-gene.lists<-c('mcpcounter','cibersort','LyonsEtAl','Wallet')
-require(pheatmap,quietly=T)
-require(GSVA,quietly=T)
-
-for(gl in gene.lists){
-  gene.annotations <- singleCellSeq::getGeneList(gl)
-  g.list<-lapply(gene.annotations%>%split(.$Cell),function(x) x$Gene)
-  g.res<-gsva(as.matrix(samp.mat),g.list,method='ssgsea',rnaseq=TRUE,verbose=FALSE)
-  colnames(g.res)<-rownames(cell.annotations)
-  cat('\n\n')  
-  cat(paste("#### ssGSEA of",gl))
-  suppressWarnings(pheatmap(t(g.res),clustering_distance_rows='correlation',clustering_distance_cols='correlation',clustering_method='ward.D2',annotation_row=cell.annotations[colnames(g.res),],show_rownames=F))
-  cat('\n\n') 
-}
-```
-  

@@ -7,7 +7,6 @@
 #
 #synapse file
 require(synapser)
-require(tidyverse)
 require(singleCellSeq)
 synapser::synLogin()
 

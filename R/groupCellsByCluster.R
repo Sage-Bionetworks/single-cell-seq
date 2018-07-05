@@ -31,17 +31,22 @@ dataMatrixToCluster.pca <-function(df, cols.to.exclude=c()){
     return(res)
 }
 
-cellClustersToSynapse <-function(){
-  
-}
 
 #' dataMatrixToCluster.seurat is a function to cluster a data matrix
 #' by seurat and return an annotated list of cells
 #' @param df
 #' @param cols.to.exclude
 #' @export
-dataMatrixtoCluster.seurat<-function(df,cols.to.exclude=c()){
-  require(Seurat,quietly=T)
+dataMatrixToCluster.seurat<-function(df,cols.to.exclude=c()){
+  library(Seurat)
+  res<-CreateSeuratObject(df)
+  res<-NormalizeData(object = res, normalization.method = "LogNormalize",scale.factor = 10000)
+  res<-FindVariableGenes(res,do.plot=FALSE)
+  res<-ScaleData(res)
+  res<-RunPCA(res,do.print=FALSE)
+  res<-RunTSNE(res)
+  res
+    
 }
 
 #' runs dbscan to determine clusters
