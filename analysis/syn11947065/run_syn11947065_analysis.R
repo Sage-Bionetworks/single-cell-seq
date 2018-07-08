@@ -43,7 +43,7 @@ cell.annotations<-data.frame(
 rmd<-system.file('processing_clustering_vis.Rmd',package='singleCellSeq')
 #kr<-knit2synapse::createAndKnitToFileEntity(file=rmd,parentId=analysis_dir,fileName=analysis_file,executed=paste("https://raw.githubusercontent.com/Sage-Bionetworks/single-cell-seq/master/analysis/",syn_file,"/processing_clustering_vis.Rmd",sep=''),used=syn_file,overwrite=TRUE)
 
-kf<-rmarkdown::render(rmd,rmarkdown::html_document(),params=list(samp.mat=samp.mat,gene.list='mcpcounter'))
+kf<-rmarkdown::render(rmd,rmarkdown::html_document(),output_file='processling_cluster_vis.html',params=list(samp.mat=samp.mat,gene.list='mcpcounter'))
 
 #synapser::synStore(File(kf,parentId=analysis_dir),executed=paste("https://raw.githubusercontent.com/Sage-Bionetworks/single-cell-seq/master/analysis/",syn_file,"/run_",syn_file,"_analysis.R",sep=''),used=syn_file)
 

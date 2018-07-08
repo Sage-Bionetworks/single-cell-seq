@@ -64,10 +64,10 @@ Seurat::TSNEPlot(clust.sres)
 
 Now we can see the clusters and evaluate the gene lists of interest.
 ```{r genes}
-genes<-singleCellSeq::getGeneList(gene.list)
+by.cell<-singleCellSeq::getGeneList(gene.list)
 
-by.cell=lapply(as.character(unique(genes$Cell)),function(x) subset(genes,Cell==x)$Gene)
-names(by.cell)<-as.character(unique(genes$Cell))
+#by.cell=lapply(as.character(unique(genes$Cell)),function(x) subset(genes,Cell==x)$Gene)
+#names(by.cell)<-as.character(unique(genes$Cell))
 
 #now create file paths
 paths <- paste0(names(by.cell), ".png")

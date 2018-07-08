@@ -13,12 +13,15 @@ getGeneList <- function(method='cibersort'){
     synapser::synLogin()
 
   
-  tab <- synTableQuery(paste('select * from',geneListTable))$asDataFrame()%>%dplyr::select(Gene=`Gene Name`,Cell=`Cell Type`,Source)
+  tab <- synTableQuery(paste('select * from',geneListTable))$asDataFrame()%>%dplyr::select(Gene=`Gene Name`,Cell=`Cell Type`,Source,Operator)
+  
+  ##first make into a list of lists
+  tab.list<-lapply(split(tab,tab$Source),function(x) lapply(split(x,x$Cell),function(y) y$Gene))
   
   if(method%in%(unique(tab$Source)))
-    tab <- subset(tab,Source==method)
+    tab.list<-tab.list[[method]]
   
-  return(tab)
+  return(tab.list)
   
 }
 

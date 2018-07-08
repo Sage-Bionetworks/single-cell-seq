@@ -25,12 +25,12 @@ cell.annotations<-data.frame(
   IsTumor=sapply(colnames(samp.tab),function(x) length(grep('LN',x))==0))
 
 #TODO: reformat as data frame
-gene.annotations <- getGeneList('mcpcounter')
+g.list <- getGeneList('mcpcounter')
 
 #plot annotations with heatmap
 
 #store heatmaps
-g.list<-lapply(gene.annotations%>%split(.$Cell),function(x) x$Gene)
+#g.list<-lapply(gene.annotations%>%split(.$Cell),function(x) x$Gene)
 require(GSVA)
 gmat<-samp.tab%>%select(-Gene)
 rownames(gmat)<-make.names(samp.tab$Gene,unique=TRUE)

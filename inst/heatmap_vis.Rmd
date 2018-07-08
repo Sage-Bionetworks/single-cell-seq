@@ -1,0 +1,42 @@
+---
+title: "scRNA-Seq Heatmaps"
+author: "Sara Gosline"
+date: "6/22/2018"
+output: html_document
+---
+
+###Properly formatted data
+```{r,echo=FALSE} 
+knitr::opts_chunk$set(echo = TRUE)
+
+samp.mat <- params$samp.mat
+cell.annotations <- params$cell.annotations
+
+```
+
+## R Markdown
+
+We may also have cell-specific annotations, These two are experiment-specific and should be formatted in a way that can be better visualized. These are passed in as `cell.annotations`:
+```{r see-annotations}
+head(cell.annotations)
+```
+### Single Cell Enrichment
+We have also collated a set of gene lists that are known to be expressed in single cell populations.
+
+```{r Get Genes,results='asis'}
+gene.lists<-c('mcpcounter','cibersort','LyonsEtAl','Wallet')
+# require(pheatmap)
+# suppressMessages(library(GSVA))
+# 
+# for(gl in gene.lists){
+#   gene.annotations <- singleCellSeq::getGeneList(gl)
+#   g.list<-lapply(gene.annotations%>%split(.$Cell),function(x) x$Gene)
+#   g.res<-gsva(as.matrix(samp.mat),g.list,method='ssgsea',rnaseq=TRUE,verbose=FALSE)
+#   colnames(g.res)<-rownames(cell.annotations)
+#   cat('\n\n')  
+#   cat(paste("#### ssGSEA of",gl))
+#   suppressWarnings(pheatmap(t(g.res),clustering_distance_rows='correlation',clustering_distance_cols='correlation',clustering_method='ward.D2',annotation_row=cell.annotations[colnames(g.res),],show_rownames=F))
+#   cat('\n\n') 
+# }
+```
+  
