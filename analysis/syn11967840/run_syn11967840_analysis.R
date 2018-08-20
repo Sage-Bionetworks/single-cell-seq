@@ -6,9 +6,12 @@
 
 #
 #synapse file
-require(synapser)
 require(singleCellSeq)
-synapser::synLogin()
+library(reticulate)
+require(tidyverse)
+synapse <- import("synapseclient")
+syn <- synapse$Synapse()
+syn$login()
 
 #define variables for RMd
 syn_file<-'syn11967840'
@@ -16,7 +19,7 @@ annotation_file <-'syn11967839'
 analysis_dir<-"syn12494570"
 
 #define matrix
-samp.tab<-read.table(synapser::synGet(syn_file)$path,header=T,as.is=TRUE,sep='\t')%>%dplyr::select(-c(Gene.ID_1,Gene.ID_2))%>%dplyr::rename(Gene="Gene.Symbol") 
+samp.tab<-read.table(syn$get(syn_file)$path,header=T,as.is=TRUE,sep='\t')%>%dplyr::select(-c(Gene.ID_1,Gene.ID_2))%>%dplyr::rename(Gene="Gene.Symbol") 
 
 require(org.Hs.eg.db)
 all.gn<-unique(unlist(as.list(org.Hs.egSYMBOL)))
@@ -31,17 +34,9 @@ samp.mat<-samp.tab%>%dplyr::select(-Gene)
 rownames(samp.mat) <- make.names(samp.tab$Gene,unique=TRUE)
 
 #define any cell specific annotations
-at<-read.table(synGet('syn11967839')$path,sep='\t',header=T)%>%dplyr::select(Cell,CellType="CELL_TYPE_TSNE",Time,Sample)
+at<-read.table(syn$get('syn11967839')$path,sep='\t',header=T)%>%dplyr::select(Cell,CellType="CELL_TYPE_TSNE",Time,Sample)
 rownames(at)<-at$Cell
 at<-at%>%dplyr::select(-Cell)
 
-#then knit file
-library(rmarkdown)
-
-#params=list(samp.mat=samp.mat,cell.annotations=at)
-rmd<-system.file('processing_clustering_vis.Rmd',package='singleCellSeq')
-kf<-rmarkdown::render(rmd,html_document(),params=list(samp.mat=samp.mat,cell.annotations=at))
-
-#
-synapser::synStore(File(kf,parentId=analysis_dir),executed=paste("https://raw.githubusercontent.com/Sage-Bionetworks/single-cell-seq/master/analysis/",syn_file,"/processing_clustering_vis.Rmd",sep=''),used=syn_file)
-
+runMarkdown(samp.mat,cell.annotations=at,syn_file,analysis_dir)
+  

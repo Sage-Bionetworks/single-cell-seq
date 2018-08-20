@@ -1,7 +1,23 @@
 #' annotate scRNA-seq matrix by cluster
 #' 
 #' 
+#' @export
+doCluster<-function(method,df){
+  require(Seurat)
+ clust.sres <-singleCellSeq::dataMatrixToCluster.seurat(df,method=method)
+  
+ clust.sres<-Seurat::FindClusters(clust.sres)
+ 
+ if(method=='UMAP')
+   clust.sres<-Seurat::RunUMAP(clust.sres)
+  
+  plots=switch(method,
+    "PCA"=  Seurat::PCAPlot(clust.sres),
+    "t-SNE" =   Seurat::TSNEPlot(clust.sres),
+    "UMAP" =  Seurat::DimPlot(clust.sres,reduction.use='umap'))
 
+    plots
+}
 
 #' dataMatrixToCluster.tsne is a function to cluster a data matrix
 #' by t-SNE and return an annotated list of cells
@@ -37,14 +53,17 @@ dataMatrixToCluster.pca <-function(df, cols.to.exclude=c()){
 #' @param df
 #' @param cols.to.exclude
 #' @export
-dataMatrixToCluster.seurat<-function(df,cols.to.exclude=c()){
+dataMatrixToCluster.seurat<-function(df,cols.to.exclude=c(),method='all'){
   library(Seurat)
   res<-CreateSeuratObject(df)
   res<-NormalizeData(object = res, normalization.method = "LogNormalize",scale.factor = 10000)
   res<-FindVariableGenes(res,do.plot=FALSE)
   res<-ScaleData(res)
+#  if(method%in%c('all','PCA','UMAP')
   res<-RunPCA(res,do.print=FALSE)
-  res<-RunTSNE(res)
+  if(method%in%c('all','t-SNE','UMAP'))
+    res<-RunTSNE(res)
+  
   res
     
 }

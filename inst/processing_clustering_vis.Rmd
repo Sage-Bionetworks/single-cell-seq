@@ -1,7 +1,7 @@
 ---
 title: "scRNA-Seq Annotation"
 author: "Sara Gosline"
-date: "July 3, 2018"
+date: "2018"
 output: html_document
 editor_options: 
   chunk_output_type: console
@@ -51,6 +51,8 @@ With these clusters we then need to group assign cells into groups.
 
 ```{r Cluster Cells}
 clust.sres<-Seurat::FindClusters(res.s)
+clust.sres<-Seurat::RunUMAP(clust.sres)
+
 ```
 
 #### Visualize Clusters
@@ -60,42 +62,181 @@ With Seurat just makes this much easier!
 ```{R Seurat Clusters}
 Seurat::PCAPlot(clust.sres)
 Seurat::TSNEPlot(clust.sres)
+Seurat::DimPlot(clust.sres,reduction.use='umap')
 ```
 
 Now we can see the clusters and evaluate the gene lists of interest.
-```{r genes}
-by.cell<-singleCellSeq::getGeneList(gene.list)
+#### Labeling of clusters by mcpcounter genes
+```{r MCPCounter Genes}
+#gene.lists<-c('mcpcounter','cibersort','LyonsEtAl','Wallet','SchelkerEtAl')
+  require(bsselectR)
+  gl<-'mcpcounter'
+  by.cell<- singleCellSeq::getGeneList(gl)
+  #cat(paste("\n#### Labeling of clusters by",gl,'gene list'))
+  
+     #now create file paths
+  paths <- stringr::str_replace_all(paste0(names(by.cell), ".png"),c(" "="","/"=""))
+  names(paths)<-names(by.cell)
 
-#by.cell=lapply(as.character(unique(genes$Cell)),function(x) subset(genes,Cell==x)$Gene)
-#names(by.cell)<-as.character(unique(genes$Cell))
+  dirname=paste(gl,'plots/',sep='_')
+  try(dir.create(dirname))
+  all.plots<-lapply(names(by.cell),function(gc){
+    gs<-by.cell[[gc]]
+    gs<-gs[which(gs%in%rownames(clust.sres@data))]
+    png(paste0(dirname,paths[[gc]]))
+    FeaturePlot(object = clust.sres, features.plot = gs, cols.use = c("grey", "blue"), reduction.use = "umap",do.return=TRUE)
+    #ggsave(paths[[gc]],path='plots',dpi=300)
+    dev.off()
+    })
 
-#now create file paths
-paths <- paste0(names(by.cell), ".png")
-names(paths)<-names(by.cell)
+  names(all.plots)<-names(by.cell)
 
-try(dir.create('plots'))
-all.plots<-lapply(names(by.cell),function(gc){
-  gs<-by.cell[[gc]]
-  gs<-gs[which(gs%in%rownames(clust.sres@data))]
-  png(paste0("plots/",paths[[gc]]))
-  FeaturePlot(object = clust.sres, features.plot = gs, cols.use = c("grey", "blue"), reduction.use = "tsne",do.return=TRUE)
-  #ggsave(paths[[gc]],path='plots',dpi=300)
-  dev.off()
-  })
-
-names(all.plots)<-names(by.cell)
-
-
-
-#purrr::pwalk(list(paths, all.plots),ggplot2::ggsave, path = "plots", dpi = 300)
-
-cell_plots <- paste0(list.files("plots", full.names = TRUE))
-names(cell_plots) <- stringr::str_replace_all(cell_plots, 
+  cell_plots <- paste0(list.files(dirname, full.names = TRUE))
+  names(cell_plots) <- stringr::str_replace_all(cell_plots, 
                                       c("\\.png" = "", 
-                                        "plots/" = ""))
+                                        dirname = "",
+                                        " " = ""))
 
-library(bsselectR)
-bsselect(cell_plots, type = "img",live_search = TRUE, show_tick = TRUE)
+
+  bsselect(cell_plots, type = "img",live_search = TRUE, show_tick = TRUE)
+
+```
+#### Labeling of clusters by CIBERSORT genes
+```{r Cibersort Genes}
+#gene.lists<-c('mcpcounter','cibersort','LyonsEtAl','Wallet','SchelkerEtAl')
+  require(bsselectR)
+  gl<-'cibersort'
+  by.cell<- singleCellSeq::getGeneList(gl)
+  #cat(paste("\n#### Labeling of clusters by",gl,'gene list'))
+  
+     #now create file paths
+  paths <- stringr::str_replace_all(paste0(names(by.cell), ".png"),c(" "="","/"=""))
+  names(paths)<-names(by.cell)
+
+  dirname=paste(gl,'plots/',sep='_')
+  try(dir.create(dirname))
+  all.plots<-lapply(names(by.cell),function(gc){
+    gs<-by.cell[[gc]]
+    gs<-gs[which(gs%in%rownames(clust.sres@data))]
+    png(paste0(dirname,paths[[gc]]))
+    FeaturePlot(object = clust.sres, features.plot = gs, cols.use = c("grey", "blue"), reduction.use = "tsne",do.return=TRUE)
+    #ggsave(paths[[gc]],path='plots',dpi=300)
+    dev.off()
+    })
+
+  names(all.plots)<-names(by.cell)
+
+  cell_plots <- paste0(list.files(dirname, full.names = TRUE))
+  names(cell_plots) <- stringr::str_replace_all(cell_plots, 
+                                      c("\\.png" = "", 
+                                        dirname = "",
+                                        " " = ""))
+
+
+  bsselect(cell_plots, type = "img",live_search = TRUE, show_tick = TRUE)
 
 ```
 
+#### Labeling of clusters by LyonsEtAl genes
+```{r LyonsEtAl Genes}
+#gene.lists<-c('mcpcounter','cibersort','LyonsEtAl','Wallet','SchelkerEtAl')
+  require(bsselectR)
+  gl<-'LyonsEtAl'
+  by.cell<- singleCellSeq::getGeneList(gl)
+  #cat(paste("\n#### Labeling of clusters by",gl,'gene list'))
+  
+     #now create file paths
+  paths <- stringr::str_replace_all(paste0(names(by.cell), ".png"),c(" "="","/"=""))
+  names(paths)<-names(by.cell)
+
+  dirname=paste(gl,'plots/',sep='_')
+  try(dir.create(dirname))
+  all.plots<-lapply(names(by.cell),function(gc){
+    gs<-by.cell[[gc]]
+    gs<-gs[which(gs%in%rownames(clust.sres@data))]
+    png(paste0(dirname,paths[[gc]]))
+    FeaturePlot(object = clust.sres, features.plot = gs, cols.use = c("grey", "blue"), reduction.use = "tsne",do.return=TRUE)
+    #ggsave(paths[[gc]],path='plots',dpi=300)
+    dev.off()
+    })
+
+  names(all.plots)<-names(by.cell)
+
+  cell_plots <- paste0(list.files(dirname, full.names = TRUE))
+  names(cell_plots) <- stringr::str_replace_all(cell_plots, 
+                                      c("\\.png" = "", 
+                                        dirname = "",
+                                        " " = ""))
+
+  bsselect(cell_plots, type = "img",live_search = TRUE, show_tick = TRUE)
+
+```
+
+#### Labeling of clusters by Wallet genes
+```{r Wallet Genes}
+#gene.lists<-c('mcpcounter','cibersort','LyonsEtAl','Wallet','SchelkerEtAl')
+  require(bsselectR)
+  gl<-'Wallet'
+  by.cell<- singleCellSeq::getGeneList(gl)
+  #cat(paste("\n#### Labeling of clusters by",gl,'gene list'))
+  
+     #now create file paths
+  paths <- stringr::str_replace_all(paste0(names(by.cell), ".png"),c(" "="","/"=""))
+  names(paths)<-names(by.cell)
+
+  dirname=paste(gl,'plots/',sep='_')
+  try(dir.create(dirname))
+  all.plots<-lapply(names(by.cell),function(gc){
+    gs<-by.cell[[gc]]
+    gs<-gs[which(gs%in%rownames(clust.sres@data))]
+    png(paste0(dirname,paths[[gc]]))
+    FeaturePlot(object = clust.sres, features.plot = gs, cols.use = c("grey", "blue"), reduction.use = "tsne",do.return=TRUE)
+    #ggsave(paths[[gc]],path='plots',dpi=300)
+    dev.off()
+    })
+
+  names(all.plots)<-names(by.cell)
+
+  cell_plots <- paste0(list.files(dirname, full.names = TRUE))
+  names(cell_plots) <- stringr::str_replace_all(cell_plots, 
+                                      c("\\.png" = "", 
+                                        dirname = "",
+                                        " " = ""))
+
+  bsselect(cell_plots, type = "img",live_search = TRUE, show_tick = TRUE)
+
+```
+#### Labeling of clusters by mcpcounter genes
+```{r SchelkerEtAl Genes}
+#gene.lists<-c('mcpcounter','cibersort','LyonsEtAl','Wallet','SchelkerEtAl')
+  require(bsselectR)
+  gl<-'SchelkerEtAl'
+  by.cell<- singleCellSeq::getGeneList(gl)
+  #cat(paste("\n#### Labeling of clusters by",gl,'gene list'))
+  
+     #now create file paths
+  paths <- stringr::str_replace_all(paste0(names(by.cell), ".png"),c(" "="","/"=""))
+  names(paths)<-names(by.cell)
+
+  dirname=paste(gl,'plots/',sep='_')
+  try(dir.create(dirname))
+  all.plots<-lapply(names(by.cell),function(gc){
+    gs<-by.cell[[gc]]
+    gs<-gs[which(gs%in%rownames(clust.sres@data))]
+    png(paste0(dirname,paths[[gc]]))
+    FeaturePlot(object = clust.sres, features.plot = gs, cols.use = c("grey", "blue"), reduction.use = "tsne",do.return=TRUE)
+    #ggsave(paths[[gc]],path='plots',dpi=300)
+    dev.off()
+    })
+
+  names(all.plots)<-names(by.cell)
+
+  cell_plots <- paste0(list.files(dirname, full.names = TRUE))
+  names(cell_plots) <- stringr::str_replace_all(cell_plots, 
+                                      c("\\.png" = "", 
+                                        dirname = "",
+                                        " " = ""))
+
+  bsselect(cell_plots, type = "img",live_search = TRUE, show_tick = TRUE)
+
+```

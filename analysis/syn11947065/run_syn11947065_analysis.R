@@ -6,11 +6,14 @@
 
 #
 #synapse file
-require(synapser)
 require(dplyr)
 require(tidyr)
 require(singleCellSeq)
-synapser::synLogin()
+
+library(reticulate)
+synapse <- import("synapseclient")
+syn <- synapse$Synapse()
+syn$login()
 
 #define variables for RMd
 syn_file<-'syn12045100'
@@ -18,7 +21,9 @@ analysis_dir<-"syn12118521"
 analysis_file=paste(syn_file,'analysis.html',sep='_')
 
 #define matrix
-samp.tab<-read.table(synapser::synGet(syn_file)$path,header=T,as.is=TRUE)%>%dplyr::select(-c(gene_id,gene_type))%>%dplyr::rename(Gene="gene_name") 
+samp.tab<-read.table(syn$get(syn_file)$path,header=T,as.is=TRUE)%>%dplyr::select(-c(gene_id,gene_type))%>%dplyr::rename(Gene="gene_name") 
+
+
 
 require(org.Hs.eg.db)
 all.gn<-unique(unlist(as.list(org.Hs.egSYMBOL)))
@@ -39,17 +44,4 @@ cell.annotations<-data.frame(
   IsPooled=as.factor(sapply(colnames(samp.tab),function(x) unlist(strsplit(x,split='_'))[2]=="Pooled")),
   IsTumor=as.factor(sapply(colnames(samp.tab),function(x) length(grep('LN',x))==0)))[-1,]
 
-#first knit tsne file
-rmd<-system.file('processing_clustering_vis.Rmd',package='singleCellSeq')
-#kr<-knit2synapse::createAndKnitToFileEntity(file=rmd,parentId=analysis_dir,fileName=analysis_file,executed=paste("https://raw.githubusercontent.com/Sage-Bionetworks/single-cell-seq/master/analysis/",syn_file,"/processing_clustering_vis.Rmd",sep=''),used=syn_file,overwrite=TRUE)
-
-kf<-rmarkdown::render(rmd,rmarkdown::html_document(),output_file=paste(getwd(),'/processing_cluster_vis.html',sep=''),params=list(samp.mat=samp.mat,gene.list='mcpcounter'))
-
-#synapser::synStore(File(kf,parentId=analysis_dir),executed=paste("https://raw.githubusercontent.com/Sage-Bionetworks/single-cell-seq/master/analysis/",syn_file,"/run_",syn_file,"_analysis.R",sep=''),used=syn_file)
-
-##then try to detach seurat and plo the other file
-
-rmd<-system.file('heatmap_vis.Rmd',package='singleCellSeq')
-kf<-rmarkdown::render(rmd,rmarkdown::html_document(),output_file=paste(getwd(),'/heatmap_vis.html',sep=''),params=list(samp.mat=samp.mat,cell.annotations=cell.annotations))
-
-synapser::synStore(File(kf,parentId=analysis_dir),executed=paste("https://raw.githubusercontent.com/Sage-Bionetworks/single-cell-seq/master/analysis/",syn_file,"/run_",syn_file,"_analysis.R",sep=''),used=syn_file)
+runMarkdown(samp.mat,cell.annotations=cell.annotations,syn_file,analysis_dir)

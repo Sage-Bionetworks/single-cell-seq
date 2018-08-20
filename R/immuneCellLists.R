@@ -7,13 +7,19 @@
 #' @export 
 getGeneList <- function(method='cibersort'){
   geneListTable <- 'syn12211688'
-  require(synapser,quietly=T)
+ # require(synapser,quietly=T)
+  require(reticulate)
+  synapse <- import("synapseclient")
+  syn <- synapse$Synapse()
+  
+  
   require(dplyr)
-  if(is.null(PythonEmbedInR::pyGet("syn.username")))
-    synapser::synLogin()
+  if(is.null(syn$username))
+    syn$login()
+  
 
   
-  tab <- synTableQuery(paste('select * from',geneListTable))$asDataFrame()%>%dplyr::select(Gene=`Gene Name`,Cell=`Cell Type`,Source,Operator)
+  tab <-syn$tableQuery(paste('select * from',geneListTable))$asDataFrame()%>%dplyr::select(Gene=`Gene Name`,Cell=`Cell Type`,Source,Operator)
   
   ##first make into a list of lists
   tab.list<-lapply(split(tab,tab$Source),function(x) lapply(split(x,x$Cell),function(y) y$Gene))

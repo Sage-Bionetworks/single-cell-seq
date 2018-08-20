@@ -2,7 +2,8 @@
 % Please edit documentation in R/groupCellsByCluster.R
 \name{dataMatrixToCluster.tsne}
 \alias{dataMatrixToCluster.tsne}
-\title{annotate scRNA-seq matrix by cluster}
+\title{dataMatrixToCluster.tsne is a function to cluster a data matrix
+by t-SNE and return an annotated list of cells}
 \usage{
 dataMatrixToCluster.tsne(df, cols.to.exclude = c())
 }
