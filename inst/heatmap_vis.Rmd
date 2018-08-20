@@ -1,11 +1,12 @@
 ---
 title: "Gene List Enrichment Heatmaps"
 author: "Sara Gosline"
-date: "6/22/2018"
+date: "2018"
 output: html_document
 params:
   samp.mat: NA
   cell.annotations: NA
+  seqData: TRIE
 ---
 
 ###Properly formatted data
@@ -14,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 samp.mat <- params$samp.mat
 cell.annotations <- params$cell.annotations
-
+seqData<-params$seqData
 ```
 
 ## R Markdown
@@ -34,11 +35,11 @@ require(pheatmap)
  for(gl in gene.lists){
    g.list<- singleCellSeq::getGeneList(gl)
   # g.list<-lapply(cell.annotations%>%split(.$Cell),function(x) x$Gene)
-   g.res<-gsva(as.matrix(samp.mat),g.list,method='ssgsea',rnaseq=TRUE,verbose=FALSE)
+   g.res<-gsva(as.matrix(samp.mat),g.list,method='ssgsea',rnaseq=seqData,verbose=FALSE)
    colnames(g.res)<-rownames(cell.annotations)
    cat('\n\n')  
    cat(paste("#### ssGSEA of",gl))
-   suppressWarnings(pheatmap(t(g.res),clustering_distance_rows='correlation',clustering_distance_cols='correlation',clustering_method='ward.D2',annotation_row=cell.annotations[colnames(g.res),],show_rownames=F))
+   suppressWarnings(pheatmap(t(g.res),cellwidth=10,clustering_distance_rows='correlation',clustering_distance_cols='correlation',clustering_method='ward.D2',annotation_row=cell.annotations[colnames(g.res),],show_rownames=F))
    cat('\n\n') 
  }
 ```

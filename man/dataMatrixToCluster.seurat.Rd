@@ -5,7 +5,7 @@
 \title{dataMatrixToCluster.seurat is a function to cluster a data matrix
 by seurat and return an annotated list of cells}
 \usage{
-dataMatrixToCluster.seurat(df, cols.to.exclude = c())
+dataMatrixToCluster.seurat(df, cols.to.exclude = c(), method = "all")
 }
 \description{
 dataMatrixToCluster.seurat is a function to cluster a data matrix
