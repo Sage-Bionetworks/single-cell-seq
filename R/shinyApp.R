@@ -3,17 +3,17 @@ library(shinydashboard)
 library(shinycssloaders)
 
 
+
 # Define UI for dataset viewer app ----
-ui <- fluidPage(
+ui <- dashboardPage(
   
   # App title ----
-  titlePanel("scRNA-Seq Explorer"),
+  dashboardHeader(title="scRNA-Seq Explorer"),
   
   # Sidebar layout with input and output definitions ----
-  sidebarLayout(
-    
+  dashboardSidebar(width=300,
     # Sidebar panel for inputs ----
-    sidebarPanel(
+    #sidebarPanel(
       
       # Input: Text for providing a caption ----
       # Note: Changes made to the caption in the textInput control
@@ -41,34 +41,37 @@ ui <- fluidPage(
     
   ),
     # Main panel for displaying outputs ----
-    mainPanel(
+    dashboardBody(
       
-      # Output: Formatted text for caption ----
-  #    h3(textOutput("caption", container = span)),
-      h2("scRNA-Seq Visualization"),
-      hr(),
-      h4("To begin:"),
-      p("\t1. Select a dataset"),
-      p("\t2. Select a visualization tool"),
-      p('\t3. Select a gene list'),
-      hr(),
-      h5(textOutput('loaded')),
-      hr(),
+      tags$h2("scRNA-Seq Visualization"),
+      tags$hr(),
+      tags$h4("To begin:"),
+      tags$ol(),
+      tags$li("\t1. Select a dataset"),
+      tags$li("\t2. Select a visualization tool"),
+      tags$li('\t3. Select a gene list'),
+      tags$ol(),
+      tags$hr(),
+      tags$h5(textOutput('loaded')),
+      tags$hr(),
       # Output: Verbatim text for data summary ----
-      h5("Dataset visualization"),
+      tags$h5("Dataset visualization"),
       plotOutput("plot"),
-      hr(),
-      h5("Gene List Visualization"),
-      plotOutput("genes")
+      tags$hr(),
+      tags$h5("Gene List Visualization"),
+    plotOutput("genes")
       # Output: HTML table with requested number of observations ----
      # tableOutput("view")
-      
     )
-  )
 )
+
 
 server <- function(input, output) {
   require(singleCellSeq)
+  
+  changObject<-loadChang()
+  simsObject<-loadSims()
+  chungObject <- loadChung()
   
   # Return the requested dataset ----
   # By declaring datasetInput as a reactive expression we ensure
@@ -79,9 +82,9 @@ server <- function(input, output) {
   #    i.e. it only executes a single time
   datasetInput <- reactive({
     switch(input$dataset,
-      "CoH Breast Cancer"=loadChang(),
-      "Columbia GBM"=loadSims(),
-      "Chung Breast Cancer"=loadChung()
+      "CoH Breast Cancer"=changObject,
+      "Columbia GBM"=simsObject,
+      "Chung Breast Cancer"=chungObject
     )
   })
   
@@ -104,8 +107,8 @@ server <- function(input, output) {
   output$loaded <-renderText({
     require(dplyr)
    # if(input$dataset!=""){
-    alld<-datasetInput()#%>% withSpinner(color="#0dc5c1")
-    dataset <<- alld$data
+    alld<<-datasetInput()#%>% withSpinner(color="#0dc5c1")
+  #  dataset <<- alld$data
     paste("Summary of the",input$dataset,'dataset')
     
   })
@@ -113,8 +116,15 @@ server <- function(input, output) {
   # The output$summary depends on the datasetInput reactive
   # expression, so will be re-executed whenever datasetInput is
   # invalidated, i.e. whenever the input$dataset changes
+  
   dataClustering <- reactive({
-    doCluster(method=input$clustering,dataset)
+    doCluster(method=input$clustering,alld$seurat)
+  
+#    doCluster(method=input$clustering,clust.sres=switch(input$dataset,
+#      "CoH Breast Cancer"=changObject$seurat,
+#      "Columbia GBM"=simsObject$seurat,
+#      "Chung Breast Cancer"=chungObject$seurat
+#    ))
 #    switch(input$clustering,
 #      "CoH Breast Cancer"=loadChang(),
 #      "Columbia GBM"=loadSims(),

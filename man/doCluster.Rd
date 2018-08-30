@@ -4,7 +4,7 @@
 \alias{doCluster}
 \title{annotate scRNA-seq matrix by cluster}
 \usage{
-doCluster(method, df)
+doCluster(method, clust.sres)
 }
 \description{
 annotate scRNA-seq matrix by cluster

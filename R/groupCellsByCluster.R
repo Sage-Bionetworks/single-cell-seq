@@ -1,16 +1,8 @@
 #' annotate scRNA-seq matrix by cluster
 #' 
-#' 
 #' @export
-doCluster<-function(method,df){
-  require(Seurat)
- clust.sres <-singleCellSeq::dataMatrixToCluster.seurat(df,method=method)
-  
- clust.sres<-Seurat::FindClusters(clust.sres)
- 
- if(method=='UMAP')
-   clust.sres<-Seurat::RunUMAP(clust.sres)
-  
+doCluster<-function(method,clust.sres){
+
   plots=switch(method,
     "PCA"=  Seurat::PCAPlot(clust.sres),
     "t-SNE" =   Seurat::TSNEPlot(clust.sres),

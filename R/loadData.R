@@ -1,6 +1,20 @@
 # This is going to be a large function that loads/processes datasets
 
-#' @export
+#' @param df is a data frame
+#' @export 
+getSeuratObject<-function(df){
+  require(Seurat)
+  require(singleCellSeq)
+  clust.sres <-dataMatrixToCluster.seurat(df)
+  
+  clust.sres<-FindClusters(clust.sres)
+  
+  clust.sres<-RunUMAP(clust.sres)
+  clust.sres
+}
+
+#'
+#'@export
 loadChung<-function(){
   require(singleCellSeq)
   library(reticulate)
@@ -34,15 +48,19 @@ loadChung<-function(){
   rownames(at)<-at$Cell
   at<-at%>%dplyr::select(-Cell)
   
-  return(list(data=samp.mat,annote=at))
+  return(list(data=samp.mat,annote=at,seurat=getSeuratObject(samp.mat)))
   
 }
-#' @export
+
+#'
+#'@export
 loadSims<-function(){
   
   
 }
-#' @export
+
+#'
+#'@export
 loadChang<-function(){
   require(dplyr)
   require(tidyr)
@@ -81,5 +99,5 @@ loadChang<-function(){
     IsPooled=as.factor(sapply(colnames(samp.tab),function(x) unlist(strsplit(x,split='_'))[2]=="Pooled")),
     IsTumor=as.factor(sapply(colnames(samp.tab),function(x) length(grep('LN',x))==0)))[-1,]
   
-  return(list(data=samp.mat,annote=cell.annotations))
+  return(list(data=samp.mat,annote=cell.annotations,seurat=getSeuratObject(samp.mat)))
 }
