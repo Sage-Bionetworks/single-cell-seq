@@ -17,8 +17,6 @@ getGeneList <- function(method='cibersort'){
   if(is.null(syn$username))
     syn$login()
   
-
-  
   tab <-syn$tableQuery(paste('select * from',geneListTable))$asDataFrame()%>%dplyr::select(Gene=`Gene Name`,Cell=`Cell Type`,Source,Operator)
   
   ##first make into a list of lists
@@ -26,6 +24,8 @@ getGeneList <- function(method='cibersort'){
   
   if(method%in%(unique(tab$Source)))
     tab.list<-tab.list[[method]]
+  
+  #print(tab.list)
   
   return(tab.list)
   

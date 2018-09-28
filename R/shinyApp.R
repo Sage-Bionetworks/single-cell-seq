@@ -16,11 +16,6 @@ ui <- dashboardPage(
     #sidebarPanel(
       
       # Input: Text for providing a caption ----
-      # Note: Changes made to the caption in the textInput control
-      # are updated in the output area immediately as you type
-     # textInput(inputId = "caption",
-    #    label = "Caption:",
-    #    value = "Data Summary"),
       
       # Input: Selector for choosing dataset ----
       selectInput(inputId = "dataset",
@@ -36,9 +31,7 @@ ui <- dashboardPage(
       
     selectInput(inputId = "genelist",
       label = "Gene List",
-      choices = c("mcpCounter","LyonsEtAl","SchelkerEtAl","Wallet"),
-      selected = NULL)
-    
+      choices = c("mcpCounter","LyonsEtAl","SchelkerEtAl","Wallet"))
   ),
     # Main panel for displaying outputs ----
     dashboardBody(
@@ -46,20 +39,21 @@ ui <- dashboardPage(
       tags$h2("scRNA-Seq Visualization"),
       tags$hr(),
       tags$h4("To begin:"),
-      tags$ol(),
-      tags$li("\t1. Select a dataset"),
-      tags$li("\t2. Select a visualization tool"),
-      tags$li('\t3. Select a gene list'),
-      tags$ol(),
+      tags$ol(
+      tags$li("Select a dataset"),
+      tags$li("Select a visualization tool"),
+      tags$li('Select a gene list')
+      ),
       tags$hr(),
-      tags$h5(textOutput('loaded')),
+    #  tags$h5(textOutput('loaded')),
       tags$hr(),
       # Output: Verbatim text for data summary ----
       tags$h5("Dataset visualization"),
-      plotOutput("plot"),
+    #  plotOutput("plot"),
       tags$hr(),
       tags$h5("Gene List Visualization"),
-    plotOutput("genes")
+    #   uiOutput("lol_select"),
+    tags$h4(textOutput("genes"))
       # Output: HTML table with requested number of observations ----
      # tableOutput("view")
     )
@@ -68,10 +62,11 @@ ui <- dashboardPage(
 
 server <- function(input, output) {
   require(singleCellSeq)
+  chungObject<-NA#loadChung()
+  changObject<-NA#loadChang()
+  simsObject<-NA#loadSims()
   
-  changObject<-loadChang()
-  simsObject<-loadSims()
-  chungObject <- loadChung()
+  all.genes<<-getGeneList(method='all')
   
   # Return the requested dataset ----
   # By declaring datasetInput as a reactive expression we ensure
@@ -88,6 +83,8 @@ server <- function(input, output) {
     )
   })
   
+  
+  
   # Create caption ----
   # The output$caption is computed based on a reactive expression
   # that returns input$caption. When the user changes the
@@ -103,11 +100,9 @@ server <- function(input, output) {
 #    paste("Data modeling of",input$dataset)
 #  })
   
-  
   output$loaded <-renderText({
     require(dplyr)
    # if(input$dataset!=""){
-    alld<<-datasetInput()#%>% withSpinner(color="#0dc5c1")
   #  dataset <<- alld$data
     paste("Summary of the",input$dataset,'dataset')
     
@@ -117,30 +112,35 @@ server <- function(input, output) {
   # expression, so will be re-executed whenever datasetInput is
   # invalidated, i.e. whenever the input$dataset changes
   
-  dataClustering <- reactive({
-    doCluster(method=input$clustering,alld$seurat)
-  
-#    doCluster(method=input$clustering,clust.sres=switch(input$dataset,
-#      "CoH Breast Cancer"=changObject$seurat,
-#      "Columbia GBM"=simsObject$seurat,
-#      "Chung Breast Cancer"=chungObject$seurat
-#    ))
-#    switch(input$clustering,
-#      "CoH Breast Cancer"=loadChang(),
-#      "Columbia GBM"=loadSims(),
-#      "Chung Breast Cancer"=loadChung()
-    
+   
+  output$lol_select <- renderUI({
+    ln=input$genelist
+    print(ln)
+    print(paste(names(all.genes[ln]),collapse=','))
+    input$cellType<<-selectInput("cellType","Cell Type",choices=names(all.genes[ln]))
   })
-  
-  plotGeneList <-reactive({
-    gl=getGeneList(method=tolower(gsub(" ","",input$genelist)))
+ # geneListName<-reactive(input$cellType){
+#    
+    
+#  }
+  plotGeneList <-renderText({
+ #   gl<<-all.genes[[tolower(gsub(" ","",input$genelist))]]
+#    print(gl)
+    alld<<-datasetInput()#%>% withSpinner(color="#0dc5c1")
+  print(input$cellType)
+     gs<-all.genes[input$cellType]
+     gs<-gs[which(gs%in%rownames(alld$seurat@data))]
+     print(gs)
+  #   FeaturePlot(object = alld$seurat, features.plot = gs, cols.use = c("grey", "blue"), switch(input$clustering,"UMAP"="umap","t-SNE"='tsne',"PCA"='pca'),do.return=TRUE)
+      #ggsave(paths[[gc]],path='plots',dpi=300)
+      #dev.off()
   })
   
   output$plot <- renderPlot({
-    dataClustering()#%>% withSpinner(color="#0dc5c1")
+    #dataClustering()#%>% withSpinner(color="#0dc5c1")
   })
   
-  output$genes <-renderPlot({
+  output$genes <-renderText({
     plotGeneList()
   })
   
