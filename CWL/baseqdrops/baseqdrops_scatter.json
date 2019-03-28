@@ -1,0 +1,8 @@
+{
+  "idquery": "SELECT id,individualID,readPair FROM syn11974770 where fileFormat='fastq' and dissociationMethod='10x_v2'",
+  "sample_query": "SELECT distinct specimenID,individualID,assay,dataType,sex,consortium,study,diagnosis,tumorType,species,fundingAgency,resourceType,nf1Genotype,nf2Genotype,studyName from syn11614202 where assay = 'rnaSeq' AND fileFormat = 'fastq' AND parentId = 'syn7979306'",
+  "synapse_config": {
+    "class": "File",
+    "path": ".synapseConfig"
+  }
+}
