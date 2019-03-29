@@ -1,6 +1,6 @@
-label: breakdownfile-tool
-id: breakdownfile-tool
-cwlVersion: v1.0
+#!/usr/bin/env cwl-runner
+#
+# Authors: Andrew Lamb
 
 
 class: CommandLineTool

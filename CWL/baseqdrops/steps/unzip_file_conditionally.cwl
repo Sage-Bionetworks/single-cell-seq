@@ -1,4 +1,5 @@
 #!/usr/bin/env cwl-runner
+#
 # Author: Andrew Lamb
 
 cwlVersion: v1.0

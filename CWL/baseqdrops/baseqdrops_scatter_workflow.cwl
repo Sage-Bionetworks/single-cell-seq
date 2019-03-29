@@ -1,5 +1,6 @@
 #!/usr/bin/env cwl-runner
-# Author: Andrew lamb
+#
+# Authors: Andrew Lamb
 
 cwlVersion: v1.0
 class: Workflow

@@ -1,5 +1,6 @@
 #!/usr/bin/env cwl-runner
-# Author: Xindi Guo
+#
+# Authors: Andrew Lamb
 
 cwlVersion: v1.0
 class: CommandLineTool
