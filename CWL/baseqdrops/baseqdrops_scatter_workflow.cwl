@@ -18,14 +18,14 @@ inputs:
 
 outputs:
 
-- id: reads_file_array 
+- id: reads_file_array
   type: File[]
-  outputSource: 
+  outputSource:
   - baseqdrop_workflow/reads_file
 
-- id: umi_file_array 
+- id: umi_file_array
   type: File[]
-  outputSource: 
+  outputSource:
   - baseqdrop_workflow/umi_file
 
 requirements:
@@ -39,7 +39,7 @@ steps:
   in:
     synapse_config: synapse_config
     query: idquery
-  out: 
+  out:
   - query_result
 
 - id: get-samples-from-fv
@@ -56,14 +56,14 @@ steps:
   in:
     synapseid: index_id
     synapse_config: synapse_config
-  out: 
-  - filepath  
+  out:
+  - filepath
 
 - id: untar_index
   run: steps/untar.cwl
   in:
     tar_file: download_index/filepath
-  out: 
+  out:
   - dir
 
 - id: baseqdrop_workflow
@@ -80,17 +80,57 @@ steps:
   - sample_name
   - p1_fastq_ids
   - p2_fastq_ids
-  scatterMethod: dotproduct 
+  scatterMethod: dotproduct
   out:
   - umi_file
   - reads_file
 
+- id: get-clinical
+  run: https://raw.githubusercontent.com/Sage-Bionetworks/synapse-client-cwl-tools/master/synapse-query-tool.cwl
+  in:
+    synapse_config: synapse_config
+    query: sample_query
+  out:
+  - query_result
 
+- id: join-umi-files
+  run: https://raw.githubusercontent.com/sgosline/synapse-workflow-cwl-tools/master/join-fileview-by-specimen-tool.cwl
+  in:
+    filelist: baseqdrop_workflow/umi_file
+    scripts: scripts
+    values: baseqdrop_workflow/sample_name
+    manifest_file: get-clinical/query_result
+    parentid: parentid
+    key: individualID
+  out:
+  - newmanifest
 
-#- id: get-clinical
-#  run: https://raw.githubusercontent.com/Sage-Bionetworks/synapse-client-cwl-tools/master/synapse-query-tool.cwl
-#  in:
-#    synapse_config: synapse_config
-#    query: sample_query
-#  out:
-#  - query_result
+- id: store-umi-files
+  run: https://raw.githubusercontent.com/Sage-Bionetworks/synapse-client-cwl-tools/master/synapse-sync-to-synapse-tool.cwl
+  in:
+    synapse_config: synapse_config
+    files: baseqdrop_workflow/umi_file
+    manifest_file: join-umi-files/newmanifest
+  out:
+    []
+
+- id: join-read-files
+  run: https://raw.githubusercontent.com/sgosline/synapse-workflow-cwl-tools/master/join-fileview-by-specimen-tool.cwl
+  in:
+    filelist: baseqdrop_workflow/reads_file
+    scripts: scripts
+    values: baseqdrop_workflow/sample_name
+    manifest_file: get-clinical/query_result
+    parentid: parentid
+    key: individualID
+  out:
+  - newmanifest
+
+- id: store-read-files
+  run: https://raw.githubusercontent.com/Sage-Bionetworks/synapse-client-cwl-tools/master/synapse-sync-to-synapse-tool.cwl
+  in:
+    synapse_config: synapse_config
+    files: baseqdrop_workflow/umi_file
+    manifest_file: join-umi-files/newmanifest
+  out:
+    []
