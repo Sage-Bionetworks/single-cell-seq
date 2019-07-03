@@ -15,7 +15,7 @@ requirements:
 
 inputs:
   sra-id:
-    type: string
+    type: File
     inputBinding:
       position: 1
   output:
