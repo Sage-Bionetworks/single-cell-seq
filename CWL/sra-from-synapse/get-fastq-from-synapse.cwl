@@ -10,7 +10,7 @@ inputs:
   synapse_id:
     type: string
   outputdir:
-    type: string
+    type: Directory
 
 outputs:
   fastq-file:
