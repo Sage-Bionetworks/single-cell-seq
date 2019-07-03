@@ -3,6 +3,8 @@ stores csv or tsv file to synapse
 '''
 
 import synapseclient
+syn = synapseclient.Synapse()
+from synapseclient import Schema, Column, Table
 
 import pandas as pd
 from optparse import OptionParser
@@ -10,12 +12,12 @@ from optparse import OptionParser
 # Get synapse ID of files based on path and parent in manifest
 # @export
 # @requires synapserf
-getIdsFromPathParent<-function(path.parent.df){
+getIdsFromPathParent=function(path.parent.df){
   require(synapser)
 
-  synid<-apply(path.parent.df,1,function(x){
+  synid=apply(path.parent.df,1,function(x){
    print(x[['parent']])
-   children<-synapser::synGetChildren(x[['parent']])$asList()
+   children=synapser::synGetChildren(x[['parent']])$asList()
     #print(children)
     for(c in children)
       if(c$name==x[['path']])
@@ -33,60 +35,52 @@ getIdsFromPathParent<-function(path.parent.df){
 def saveToTable(tidied_df,tablename,parentId):
 
   ##first see if there is a table with an existing name
-  children<-synapser::synGetChildren(parentId)$asList()
-  id<-NULL
+  children=synapseclient.getChildren(parentId)
+  id=NULL
   for(c in children):
-    if(c$name==tablename):
-      id<-c$id
-  if(is.null(id)){
+    if(c.name==tablename):
+      id=c.id
+  if(is.null(id)):
       print('No table found, creating new one')
-    synapser::synStore(synapser::synBuildTable(tablename,parentId,tidied.df))
-  }else{
-    saveResultsToExistingTable(tidied.df,id)
-  }
-}
+   syn.store(tablename,parentId,tidied_df))
+  else:
+    saveResultsToExistingTable(tidied_df,id)
+
 
 
 # @requires synapser
 # @export
-def saveResultsToExistingTable(tidied.df,tableid):
+def saveResultsToExistingTable(tidiedDf,tableid):
 
     print(tableid + 'already exists with that name, adding')
   #first get table schema
-  orig.tab<-synGet(tableid)
+  origTab=syn.get(tableid)
 
   #then get column names
-  cur.cols<-sapply(as.list(synGetTableColumns(orig.tab)),function(x) x$name)
+  curCols=[c.name for c in syn.getTableColumns(origTab)]
 
   #how are they different?
-    missing.cols<-setdiff(cur.cols,names(tidied.df))
-#    print(paste("DF missing:",paste(missing.cols,collapse=',')))
- # print('orig table')
- # print(dim(tidied.df))
-  #then add in values
-  for(a in missing.cols){
-    tidied.df<-data.frame(tidied.df,rep(NA,nrow(tidied.df)))
-    colnames(tidied.df)[ncol(tidied.df)]<-a
-  }
+  missingCols=[m for m in curCols if m not in tidiedDf.keys()]
 
-    other.cols<-setdiff(names(tidied.df),cur.cols)
+  for(a in missingCols):
+    tidiedDf=pd.dataFrame(tidiedDf,rep(NA,tidiedDf.shape[0])))
+    colnames(tidiedDf)[ncol(tidiedDf)]=a
+
+    otherCols=[c for c in tidiedDf.keys() if c not in curCols]
  #   print(paste("Syn table missing:",paste(other.cols,collapse=',')))
-  for(a in other.cols){
-    if(is.numeric(tidied.df[,o]))
-      orig.tab$addColumn(synapser::Column(name=o,columnType="DOUBLE"))
-    else{
-      orig.tab$addColumn(synapser::Column(name=o,type="STRING",maximumSize=100))
-    }
-  }
- # print('final table')
+  for(a in otherCols):
+    if(is.numeric(tidied.df[,o])):
+      origTab.addColumn(Column(name=o,columnType="DOUBLE"))
+    else:
+      origTab.addColumn(Column(name=o,type="STRING",maximumSize=100))
                                         # print(dim(tidied.df))
   #  print(orig.tab)
   #  print(head(as.data.frame(tidied.df)))
   #store to synapse
-  stab<-synapser::Table(orig.tab$properties$id,as.data.frame(tidied.df))
+  stab=Table(origTab.properties['id'],tidiedDf)
   #print(stab)
-  synapser::synStore(stab)
-}
+  syn.store(stab)
+
 
 
 
@@ -99,7 +93,8 @@ def main():
     parser.add_option("-n", "--tableName", dest='name',help='')
     parser.add_option("-t", '--tableId',dest='tid',help='Table ID if table already exists')
 
-
+    (options, args) = parser.parse_args()
+    tab= tab=pd.read_csv(options.filename)
 
 
 main()
