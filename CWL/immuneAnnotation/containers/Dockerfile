@@ -9,7 +9,7 @@ RUN apt-get update \
 
 RUN pip3 install --upgrade pip
 
-COPY ../reshapeImmunePredictions.py /usr/local/bin/reshapeImmunePredictions.py
+COPY reshapeImmunePredictions.py /usr/local/bin/reshapeImmunePredictions.py
 
 RUN chmod 777 /usr/local/bin/reshapeImmunePredictions.py
 

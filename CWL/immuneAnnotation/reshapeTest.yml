@@ -1,4 +1,4 @@
-synapse_config:
+synapse-config:
   class: File
   path: /home/sgosline/.synapseConfig
 input-file: syn18497731
@@ -8,5 +8,11 @@ prob_unknown: 0
 input_path:
   class: File
   path: immClassifierTestMatrix.tsv
-tableparentid: syn11857287
-tablename: Tumor Immune Annotation Predictions
+tableparentid:
+  - syn11857287
+tablename:
+  - Tumor Immune Annotation Predictions
+model: immClassifier
+tumor-type: none
+training-file: none
+dataset-name: test data

@@ -38,5 +38,8 @@ inputs:
       position: 5
       prefix: --name
 
-output:
-  []
+outputs:
+  reshaped-data:
+    type: stdout
+
+stdout: reshaped-data.tsv
