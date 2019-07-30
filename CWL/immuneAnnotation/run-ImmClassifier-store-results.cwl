@@ -15,21 +15,22 @@ inputs:
     type: string
   prob_unknown:
     type: double
-  tableid:
-    type: String
+  tableparentid:
+    type: string
+  tablename:
+    type: string
 
 outputs:
-  []
+  tidied-df:
+    valueFrom: reshape-results/tidied-df
 
 steps:
-  get-input:
-
   run-imm-classifier:
-    run: https://raw.githubusercontent.com/sgosline/ImmClassifier/master/cwl/run-immclassifier.cwl?token=AAODEOR2YUQDSI7S4EBQGCC5BMBBQ
+    run: https://raw.githubusercontent.com/sgosline/ImmClassifier/master/cwl/run-immclassifier.cwl?token=AAODEOTUM2OMGTVXEATVLBS5IBX5U
     in:
       synapse_config: synapse_config
       input-file: input-file
-      output-id:output=id
+      output-id: output-id
       prob-unknown: prob_unknown
       output-name: output-name
     out:
@@ -41,9 +42,10 @@ steps:
     out:
       [tidied-df]
   store-to-table:
-    run: steps/store-to-table.cwl
+    run: https://raw.githubusercontent.com/Sage-Bionetworks/rare-disease-workflows/master/synapse-table-store/synapse-table-store-tool.cwl
     in:
-      file-to-store: reshape-results/tidied-df
-      table-id: tableid
+      file: reshape-results/tidied-df
+      tableparentid: tableparentid
+      tablename: tablename
     out:
       []
