@@ -21,23 +21,26 @@ def reshapeImmClassDf(df,training,dn,tumorType='none'):
     newdf['Cell Prediction']=preds
     newdf['Cell identifier']=gens.keys()
     newdf['Dataset name']=[dn]*len(preds)
-    newdf.to_csv()
+    newdf['Tumor Type']=[tumorType]*len(preds)
+    print(newdf)
 
 def main():
     parser = OptionParser()
     parser.add_option("-f", "--file", dest="filename",
-                  help="write report to FILE", metavar="FILE")
+                  help="name of file to be used")
     parser.add_option("-m", "--modelUsed",
-                   dest="model", default=['immClassifier','garnett'],
+                   dest="model", default='immClassifier',
                   help="Name of model used. Implemented choices are: immClassifier, garnett")
     parser.add_option('-t','--tumorType',
-                      dest='tumorType',default='none',help='type of disease')
-    parser.add_option('-r','--trainingFile',dest='trainingFile',help='SynID of file used in training')
-    parser.add_option('-n','--datasetName',dest='name',help='Name of dataset evaluated')
+                      dest='tumorType', default='none',help='type of disease')
+    parser.add_option('-r','--trainingFile', dest='trainingFile',help='SynID of file used in training')
+    parser.add_option('-n','--datasetName', dest='name',help='Name of dataset evaluated')
     (options, args) = parser.parse_args()
 
-     if(options.modelUsed.lower()=='immclassifier'):
-         reshapeImmClassDf(args.filename,args.trainingFile,args.name,args.tumorType)
+
+    if(options.model.lower()=='immclassifier'):
+         reshapeImmClassDf(df=options.filename,training=options.trainingFile,dn=options.name,tumorType=options.tumorType)
 
 
-main()
+if __name__=='__main__':
+    main()
