@@ -29,13 +29,15 @@ def main():
                   help="write report to FILE", metavar="FILE")
     parser.add_option("-m", "--modelUsed",
                    dest="model", default=['immClassifier','garnett'],
-                  help="don't print status messages to stdout")
+                  help="Name of model used. Implemented choices are: immClassifier, garnett")
     parser.add_option('-t','--tumorType',
-                      dest='tumorType',default='none')
-    parser.add_option('-r','--trainingFile',help='SynID of file used in training')
-
+                      dest='tumorType',default='none',help='type of disease')
+    parser.add_option('-r','--trainingFile',dest='trainingFile',help='SynID of file used in training')
+    parser.add_option('-n','--datasetName',dest='name',help='Name of dataset evaluated')
     (options, args) = parser.parse_args()
 
+     if(options.modelUsed.lower()=='immclassifier'):
+         reshapeImmClassDf(args.filename,args.trainingFile,args.name,args.tumorType)
 
 
 main()

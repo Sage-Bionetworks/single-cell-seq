@@ -7,7 +7,6 @@ RUN apt-get update \
        python3-pip \
        python3-pandas \
 
-
 RUN pip3 install --upgrade pip
 
 COPY ../reshapeImmunePredictions.py /usr/local/bin/reshapeImmunePredictions.py
