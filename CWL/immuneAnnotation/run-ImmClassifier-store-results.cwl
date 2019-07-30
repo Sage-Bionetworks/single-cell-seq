@@ -15,9 +15,9 @@ inputs:
   prob_unknown:
     type: double
   tableparentid:
-    type: string
+    type: string[]
   tablename:
-    type: string
+    type: string[]
   model:
     type: string
   tumor-type:
@@ -32,9 +32,12 @@ outputs:
     type: File
     outputSource: reshape-results/reshaped-data
 
+requirements:
+  - class: SubworkflowFeatureRequirement
+
 steps:
   run-imm-classifier:
-    run: https://raw.githubusercontent.com/sgosline/ImmClassifier/master/cwl/imm-class-workflow.cwl?token=AAODEOSR4CNTYVKPOZIES225ICB4A
+    run: /Users/sgosline/Code/ImmClassifier/cwl/imm-class-workflow.cwl
     in:
       input-file: input-file
       synapse_config: synapse-config
