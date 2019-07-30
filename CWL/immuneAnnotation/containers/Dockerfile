@@ -5,7 +5,7 @@ RUN apt-get update \
        python3 \
        python3-setuptools \
        python3-pip \
-       python3-pandas \
+       python3-pandas
 
 RUN pip3 install --upgrade pip
 
