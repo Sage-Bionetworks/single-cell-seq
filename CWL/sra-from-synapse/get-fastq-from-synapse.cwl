@@ -14,7 +14,7 @@ inputs:
 
 outputs:
   fastq-file:
-    type: File
+    type: File[]
     outputSource: get-fastq/fastq-file
 
 steps:

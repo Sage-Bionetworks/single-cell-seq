@@ -5,6 +5,7 @@ id: sra-to-fastq-tool
 
 baseCommand: /opt/sratoolkit.2.9.6-1-ubuntu64/bin/fastq-dump
 
+arguments: ["--split-files","--gzip"]
 requirements:
   DockerRequirement:
     dockerPull: pegi3s/sratoolkit
@@ -20,10 +21,9 @@ inputs:
       position: 1
   output:
     type: Directory
-    inputBinding:
-      position: 2
-      prefix: --outdir
 
 outputs:
   fastq-file:
-    type: File
+    type: File[]
+    outputBinding:
+      glob: "*.gz"
