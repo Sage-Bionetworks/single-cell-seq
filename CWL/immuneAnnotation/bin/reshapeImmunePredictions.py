@@ -23,10 +23,6 @@ def reshapeImmClassDf(df,training,dn,tumorType='none'):
     newdf['Dataset name']=[dn]*len(preds)
     newdf.to_csv()
 
-
-
-
-
 def main():
     parser = OptionParser()
     parser.add_option("-f", "--file", dest="filename",

@@ -8,5 +8,5 @@ prob_unknown: 0
 input_path:
   class: File
   path: immClassifierTestMatrix.tsv
-tableparentid:
-tablename:
+tableparentid: syn11857287
+tablename: Tumor Immune Annotation Predictions
