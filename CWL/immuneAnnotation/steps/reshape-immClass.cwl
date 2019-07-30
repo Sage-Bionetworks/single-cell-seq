@@ -2,14 +2,14 @@ id: reshape-immClass
 label: reshape-immClass
 cwlVersion: v1.0
 class: CommandLineTool
-baseCommand: Rscript
+baseCommand: python
 
 requirements:
    - class: DockerRequirement
-     dockerPull: nfosi/synapse-table-store
+     dockerPull: sgosline/
 
 arguments:
-  - /usr/local/bin/synapse-table-store.R
+  - /usr/local/bin/reshapeImmunePredictions.py
 
 inputs:
   synapse_config:
