@@ -6,16 +6,37 @@ baseCommand: python
 
 requirements:
    - class: DockerRequirement
-     dockerPull: sgosline/
+     dockerPull: sgosline/reshape-immune-output
 
 arguments:
   - /usr/local/bin/reshapeImmunePredictions.py
 
 inputs:
-  synapse_config:
-   type: File
   file:
     type: File
     inputBinding:
       position: 1
       prefix: --file
+  model:
+    type: string
+    inputBinding:
+      position: 2
+      prefix: --modelUsed
+  tumorType:
+    type: string
+    inputBinding:
+      position: 3
+      prefix: --tumorType
+  trainingFile:
+    type: string
+    inputBinding:
+      position: 4
+      prefix: --trainingFile
+  datasetName:
+    type: string
+    inputBinding:
+      position: 5
+      prefix: --name
+
+output:
+  []
