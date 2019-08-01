@@ -11,9 +11,9 @@ Together with the help of various institutions within the CSBC/PS-ON community w
 | ---- | ---- | --- | --- |
 | Raw sequence to counts | [baseqdrops]() | [CWL/baseqdrops](CWL/baseqdrops) | This is a Synapse-to-raw-count tool|
 | Raw sequence to counts | [dropest]() | [CWL/dropest](CWL/dropest) | This is still under development |
-| Remove dead cells |
-| Immune prediction |
-| Immune prediction |
+| Remove dead cells | [scRNASeqWC]() | []() | Currently under development|
+| Immune prediction | [ImmClassifier]() | [CWL/immuneAnnotation](CWL/immuneAnnotation) | Here we have the tools required to run and store immune annotaiton results |
+| Immune prediction | [Garnett]() | [CWL/immuneAnnotation](CWL/immuneAnnotation) | Here we have the tools required to run and store immune annotaiton results |
 
 ## Install
 Installation of this package requires the `devtools` package.
@@ -28,16 +28,3 @@ If you do not already have the `synapser` package:
 install.packages("synapser", repos=c("https://sage-bionetworks.github.io/ran", "http://cran.fhcrc.org"))
 ```
 Now you are ready to go!
-
-## Workflows
-We are building out workflows using the Common Workflow Language (CWL). These tools are stored [here](CWL/) and are fall into numerous categories.
-
-### Alignment/Processing Tools
-We are currently building workflows to enable alignment of single-cell sequencing that can be found in the workflows directory.
-* Baseq
-
-### Quality control tools
-TBD
-
-### Immune Cell Annotation Work
-TBD
