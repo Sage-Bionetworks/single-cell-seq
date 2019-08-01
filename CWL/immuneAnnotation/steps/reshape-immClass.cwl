@@ -36,7 +36,7 @@ inputs:
     type: string
     inputBinding:
       position: 5
-      prefix: --name
+      prefix: --datasetName
 
 outputs:
   reshaped-data:
