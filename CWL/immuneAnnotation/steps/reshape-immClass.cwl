@@ -2,7 +2,7 @@ id: reshape-immClass
 label: reshape-immClass
 cwlVersion: v1.0
 class: CommandLineTool
-baseCommand: python
+baseCommand: /usr/bin/python3
 
 requirements:
    - class: DockerRequirement
