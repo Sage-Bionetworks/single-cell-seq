@@ -37,7 +37,7 @@ requirements:
 
 steps:
   run-imm-classifier:
-    run: /Users/sgosline/Code/ImmClassifier/cwl/imm-class-workflow.cwl
+    run: /home/sgosline/ImmClassifier/cwl/imm-class-workflow.cwl
     in:
       input-file: input-file
       synapse_config: synapse-config
@@ -45,11 +45,11 @@ steps:
       output-name: output-name
       output-id: output-id
     out:
-      [preds]
+      [known-preds,unknown-preds]
   reshape-results:
     run: steps/reshape-immClass.cwl
     in:
-      file: run-imm-classifier/preds
+      file: run-imm-classifier/known-preds
       model: model
       tumorType: tumor-type
       trainingFile: training-file

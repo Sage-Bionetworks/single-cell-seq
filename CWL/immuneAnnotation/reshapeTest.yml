@@ -1,6 +1,6 @@
 synapse-config:
   class: File
-  path: /Users/sgosline/.synapseConfig
+  path: /home/sgosline/.synapseConfig
 input-file: syn18497731
 output-name: sara-merge-test
 output-id: syn18496218
