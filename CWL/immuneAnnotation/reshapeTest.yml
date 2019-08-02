@@ -1,4 +1,4 @@
-synapse-config:
+synapse_config:
   class: File
   path: /home/sgosline/.synapseConfig
 input-file: syn18497731
@@ -16,3 +16,6 @@ model: immClassifier
 tumor-type: none
 training-file: none
 dataset-name: test data
+file:
+        class: File
+        path: reshaped-data.tsv

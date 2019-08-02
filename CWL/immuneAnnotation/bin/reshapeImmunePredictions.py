@@ -5,7 +5,10 @@ takes a file and any metadata
 
 import pandas as pd
 from optparse import OptionParser
+from unidecode import unidecode
 
+def applytab(row):
+    print('\t'.join(map(str,row.values)))
 '''
 reshapeDf
 takes a data frame from immclass and reshapes to immune annotation data model
@@ -18,11 +21,12 @@ def reshapeImmClassDf(df,training,dn,tumorType='none'):
     newdf['Dataset name']=['']*len(preds)
     newdf['Algorithm']=['ImmClassifier']*len(preds)
     newdf['Training File']=[training]*len(preds)
-    newdf['Cell Prediction']=preds
+    newdf['Cell Prediction']=[unidecode(u)  for u in preds]
     newdf['Cell identifier']=gens.keys()
     newdf['Dataset name']=[dn]*len(preds)
     newdf['Tumor Type']=[tumorType]*len(preds)
-    print(newdf)
+    print('\t'.join(map(str,newdf.columns))) # to print the column names if required
+    newdf.apply(applytab,axis=1)
 
 def main():
     parser = OptionParser()
