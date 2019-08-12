@@ -1,5 +1,5 @@
 ### BaseqDrops workflow
-This workflow enables running of the baseqdrops workflow on files stored on [synapse](synapse.org)
+This workflow enables running of the [baseqdrops](https://github.com/beiseq/baseqDrops) package on files stored on [synapse](synapse.org)
 
 #### Running this tool
 
