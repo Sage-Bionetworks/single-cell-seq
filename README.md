@@ -13,7 +13,7 @@ Together with the help of various institutions within the CSBC/PS-ON community w
 | Raw sequence to counts | [dropest]() | [CWL/dropest](CWL/dropest) | This is still under development |
 | Remove dead cells | [scRNASeqWC](https://github.com/sgosline/scRNAseqQC) | [scRNAseqQC](https://github.com/sgosline/scRNAseqQC) | Currently under development|
 | Immune prediction | [ImmClassifier]() | [CWL/immuneAnnotation](CWL/immuneAnnotation) | Here we have the tools required to run and store immune annotaiton results |
-| Immune prediction | [Garnett]() | [CWL/immuneAnnotation](CWL/immuneAnnotation) | Here we have the tools required to run and store immune annotaiton results |
+| Immune annotation benchmarking | [scRNASeqBenchmark](https://github.com/tabdelaal/scRNAseq_Benchmark) | [Xindi put your repo here]() | Here we have the tools required to run and store immune annotaiton results across multiple tools|
 
 ## Install
 Installation of this package requires the `devtools` package.
